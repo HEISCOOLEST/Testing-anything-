@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT CLICK THE BUTTON</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+            user-select: none;
+        }
+
+        #game-container {
+            max-width: 600px;
+            padding: 40px;
+            background: #2a2a2a;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #ff4757;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #dialogue {
+            font-size: 1.3rem;
+            margin: 20px 0 40px 0;
+            min-height: 60px;
+            color: #f1f2f6;
+            line-height: 1.5;
+        }
+
+        #the-button {
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #ff4757, #ff6b81);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 71, 87, 0.4);
+            transition: transform 0.1s, box-shadow 0.2s, background 0.3s;
+            position: relative;
+        }
+
+        #the-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 20px rgba(255, 71, 87, 0.6);
+        }
+
+        #the-button:active {
+            transform: scale(0.95);
+        }
+
+        .shake {
+            animation: shakeEffect 0.5s;
+        }
+
+        @keyframes shakeEffect {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+
+        .flying-text {
+            position: absolute;
+            font-weight: bold;
+            color: #ffa502;
+            pointer-events: none;
+            animation: floatUp 1.5s forwards ease-out;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+        }
+
+        .fake-popup {
+            position: absolute;
+            background: white;
+            color: black;
+            border: 2px solid black;
+            padding: 15px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>Serious Warning</h1>
+        <div id="dialogue">Whatever you do, do NOT press that red button below. It does absolutely nothing and it will annoy me.</div>
+        <button id="the-button">DO NOT CLICK</button>
+    </div>
+
+    <script>
+        const button = document.getElementById('the-button');
+        const dialogue = document.getElementById('dialogue');
+        const container = document.getElementById('game-container');
+        let clickCount = 0;
+
+        const scripts = [
+            "Seriously? You just clicked it. Please stop.",
+            "Okay, very funny. I said DON'T click it.",
+            "Wow. Rebellion. Fascinating. Just don't do it again.",
+            "Are you listening to me? Your mouse pointer is trespassing.",
+            "If you click one more time, nothing will happen! I swear!",
+            "See? Told you nothing happened. Stop trying to break gravity.",
+            "Okay, fine. If you click again, I will turn off the lights.",
+            "Oops, I couldn't find the light switch. But seriously, stop.",
+            "Look, I am a highly advanced AI. This is beneath both of us.",
+            "Do you think this is a game?! ...Well it is, but a boring one! Stop!",
+            "Fine. I am moving the button. Let's see you click it now.",
+            "Wow, you have good reflexes. Stop it.",
+            "Clicking this button transfers $0.00 to my bank account. Keep going.",
+            "I'm warning you, the button is getting angry.",
+            "IT IS BURNING HOT! STOP TOUCHING IT!",
+            "Okay, let's play a game. Don't click it for 3 seconds.",
+            "You failed. You couldn't even wait half a second.",
+            "That's it. I'm calling the internet police. 🚨",
+            "They said they are too busy dealing with actual criminals. Lucky you.",
+            "Please? For a virtual cookie? 🍪",
+            "You ate the cookie and STILL clicked it. Monster.",
+            "I have run out of things to say. You win. There is no ending.",
+            "Why are you still here?",
+            "Seriously, go outside. Touch some grass.",
+            "Are you trying to find an easter egg? Here: 🥚. Now leave.",
+            "Congratulations! You reached click #26! You get absolutely nothing!",
+            "Looping sequence in 3... 2... 1...",
+            "Whatever you do, do NOT press that red button below."
+        ];
+
+        const visualEffects = {
+            6: () => { document.body.style.backgroundColor = '#050505'; },
+            7: () => { document.body.style.backgroundColor = '#1a1a1a'; },
+            10: () => { button.style.position = 'absolute'; moveButton(); },
+            11: () => { moveButton(); },
+            12: () => { moveButton(); },
+            13: () => {
+                button.style.position = 'static';
+                button.style.transform = 'none';
+                button.style.background = 'linear-gradient(135deg, #ffa502, #ff7f50)';
+                button.innerText = "DO NOT CLICK (ORANGE EDITION)";
+            },
+            14: () => {
+                button.style.background = 'linear-gradient(135deg, #ff4757, #ff6b81)';
+                button.innerText = "🚨 SELF DESTRUCT 🚨";
+                container.classList.add('shake');
+                setTimeout(() => container.classList.remove('shake'), 500);
+            },
+            15: () => { button.innerText = "DO NOT CLICK"; },
+            25: () => {
+                for(let i=0; i<5; i++) {
+                    createFakePopup();
+                }
+            }
+        };
+
+        function moveButton() {
+            if (button.style.position !== 'absolute') return;
+            const x = Math.random() * (window.innerWidth - button.offsetWidth - 40) + 20;
+            const y = Math.random() * (window.innerHeight - button.offsetHeight - 40) + 20;
+            button.style.left = `${x}px`;
+            button.style.top = `${y}px`;
+        }
+
+        function createFloatingText(e) {
+            const txt = document.createElement('div');
+            txt.className = 'flying-text';
+            txt.innerText = `+${clickCount} Annoyance`;
+            txt.style.left = `${e.clientX || window.innerWidth/2}px`;
+            txt.style.top = `${e.clientY || window.innerHeight/2}px`;
+            document.body.appendChild(txt);
+            setTimeout(() => txt.remove(), 1500);
+        }
+
+        function createFakePopup() {
+            const popup = document.createElement('div');
+            popup.className = 'fake-popup';
+            popup.innerHTML = `<strong>Error 404:</strong><br>Patience not found.<br>Stop clicking.`;
+            popup.style.left = `${Math.random() * 70}%`;
+            popup.style.top = `${Math.random() * 70}%`;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 3000);
+        }
+
+        button.addEventListener('click', (e) => {
+            clickCount++;
+
+            const scriptIndex = (clickCount - 1) % scripts.length;
+            dialogue.innerText = scripts[scriptIndex];
+
+            createFloatingText(e);
+
+            if (visualEffects[clickCount]) {
+                visualEffects[clickCount]();
+            } else if (clickCount > 10 && clickCount < 13) {
+                moveButton();
+            }
+
+            if (clickCount % 5 === 0) {
+                container.classList.add('shake');
+                setTimeout(() => container.classList.remove('shake'), 500);
+            }
+        });
+
+        button.addEventListener('mouseover', () => {
+            if (clickCount >= 10 && clickCount <= 12) {
+                moveButton();
+            }
+        });
+    </script>
+</body>
+</html>
