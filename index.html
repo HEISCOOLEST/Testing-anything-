@@ -3,187 +3,325 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Safari GPS — Ramani Halisi Tanzania & Dunia</title>
+<title>Ramani — Tanzania & Dunia</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
-*{box-sizing:border-box}html,body,#app{margin:0;width:100%;height:100%;font-family:Arial,sans-serif}
+*{box-sizing:border-box}
+html,body,#app{margin:0;width:100%;height:100%;font-family:"Google Sans",Roboto,Arial,sans-serif}
 #app{position:relative;background:#eef3f7;overflow:hidden}
 #map{position:absolute;inset:0;background:#dfe7ee}
-.top{position:absolute;z-index:1000;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}
-.brand,.status,.card,.hint,.stat{background:#fff;border-radius:16px;box-shadow:0 4px 18px #0002}
-.brand{padding:10px 14px;font-weight:800;pointer-events:auto}.brand small{display:block;font-size:10px;color:#667085;font-weight:500}
-.status{padding:8px 11px;font-size:12px}.ok{color:#087443}.bad{color:#b42318}
-.panel{position:absolute;z-index:1000;top:78px;left:12px;width:min(440px,calc(100% - 24px))}
-.card{padding:10px}.row{display:flex;gap:7px}.row input{min-width:0;flex:1;border:1px solid #d0d5dd;border-radius:11px;padding:11px;font-size:14px}
-button{border:0;border-radius:11px;padding:10px 12px;font-weight:700;background:#1769ff;color:white;cursor:pointer}.secondary{background:#eef4ff;color:#175cd3}
-.quick{display:flex;gap:6px;overflow:auto;margin-top:8px}.quick button{white-space:nowrap;border:1px solid #e4e7ec;background:#fff;color:#172033;border-radius:18px;padding:7px 10px;font-size:11px}
-.bottom{position:absolute;z-index:1000;bottom:12px;left:12px;right:12px;max-width:540px;margin:auto;display:grid;gap:7px}
-.hint{padding:10px 12px;background:#172033;color:#fff;font-size:12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stat{padding:9px}.stat b{display:block;font-size:14px}.stat span{font-size:10px;color:#667085}
-.actions{display:flex;gap:7px}.actions button{flex:1}.offlineBox{font-size:11px;color:#475467;margin-top:7px}
-#localFile{display:none}.fileBtn{background:#f2f4f7;color:#344054}
+
+/* ---- Search bar (Google style) ---- */
+.searchWrap{position:absolute;z-index:1000;top:12px;left:12px;right:12px;max-width:420px}
+.searchBar{display:flex;align-items:center;background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(32,33,36,.28);padding:0 8px;height:48px;gap:8px}
+.searchBar .icon{width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;color:#5f6368;font-size:18px}
+.searchBar input{flex:1;border:0;outline:0;font-size:15px;color:#202124;background:transparent;height:100%}
+.searchBar input::placeholder{color:#80868b}
+.searchBar .clearBtn{cursor:pointer;color:#5f6368;font-size:16px;display:none}
+.searchBar .clearBtn.show{display:flex}
+
+.suggestions{margin-top:6px;background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(32,33,36,.28);overflow:hidden;max-height:0;transition:max-height .15s ease;}
+.suggestions.open{max-height:320px;overflow-y:auto}
+.sugItem{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f3f4;font-size:14px;color:#202124}
+.sugItem:last-child{border-bottom:0}
+.sugItem:hover,.sugItem.active{background:#f1f3f4}
+.sugItem .pin{color:#5f6368;flex:none}
+.sugItem .txt small{display:block;color:#5f6368;font-size:11px;margin-top:1px}
+
+.netChip{position:absolute;z-index:1000;top:66px;right:12px;background:#fff;border-radius:16px;box-shadow:0 1px 6px rgba(32,33,36,.28);padding:5px 10px;font-size:11px;font-weight:600}
+.netChip.ok{color:#137333}.netChip.bad{color:#c5221f}
+
+/* ---- Floating action buttons, Google style right rail ---- */
+.fabCol{position:absolute;z-index:1000;right:12px;bottom:130px;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.fab{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:0;color:#666}
+.fab.active{color:#1a73e8}
+.zoomGroup{display:flex;flex-direction:column;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.zoomGroup button{width:40px;height:36px;background:#fff;border:0;font-size:18px;color:#333;cursor:pointer;border-bottom:1px solid #eee}
+.zoomGroup button:last-child{border-bottom:0}
+
+.layerPanel{position:absolute;z-index:1001;right:12px;bottom:60px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.3);padding:8px;display:none;gap:8px}
+.layerPanel.open{display:flex}
+.layerOpt{width:64px;text-align:center;cursor:pointer;font-size:11px;color:#3c4043}
+.layerOpt img{width:64px;height:48px;object-fit:cover;border-radius:6px;border:2px solid transparent;display:block;margin-bottom:4px}
+.layerOpt.active img{border-color:#1a73e8}
+
+/* ---- Bottom info card (place / GPS) ---- */
+.sheet{position:absolute;z-index:1000;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -2px 14px rgba(0,0,0,.2);transform:translateY(100%);transition:transform .22s ease;max-height:46%;overflow-y:auto}
+.sheet.open{transform:translateY(0)}
+.sheetHandle{width:36px;height:4px;background:#dadce0;border-radius:2px;margin:8px auto 4px}
+.sheetBody{padding:4px 18px 18px}
+.sheetTitle{font-size:17px;font-weight:600;color:#202124;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sheetTitle .close{cursor:pointer;color:#5f6368;font-size:18px;flex:none}
+.sheetSub{font-size:13px;color:#5f6368;margin-top:2px}
+.sheetGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.sheetStat{background:#f8f9fa;border-radius:10px;padding:8px 10px}
+.sheetStat b{display:block;font-size:14px;color:#202124}
+.sheetStat span{font-size:10px;color:#5f6368}
+.sheetActions{display:flex;gap:8px;margin-top:14px}
+.sheetActions button{flex:1;border:0;border-radius:20px;padding:10px 12px;font-weight:600;font-size:13px;cursor:pointer}
+.btnPrimary{background:#1a73e8;color:#fff}
+.btnGhost{background:#f1f3f4;color:#1a73e8}
+
+.hintToast{position:absolute;z-index:999;left:12px;right:12px;bottom:12px;max-width:420px;background:#202124;color:#fff;font-size:12px;padding:10px 14px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .3s}
+.hintToast.show{opacity:1}
+
+/* blue dot */
+.meDot{width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 2px rgba(26,115,232,.35),0 1px 4px rgba(0,0,0,.4)}
+.meDotWrap{position:relative;width:16px;height:16px}
+.mePulse{position:absolute;top:50%;left:50%;width:16px;height:16px;background:rgba(26,115,232,.35);border-radius:50%;transform:translate(-50%,-50%);animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(3.2);opacity:0}}
+
 .leaflet-control-attribution{font-size:9px}
-@media(min-width:700px){.bottom{left:auto;right:16px;margin:0}}
+@media(min-width:700px){.sheet{left:auto;right:12px;bottom:12px;width:360px;border-radius:16px;max-height:70vh}}
 </style>
 </head>
 <body>
 <div id="app">
 <div id="map"></div>
 
-<div class="top">
-  <div class="brand">🧭 Safari GPS <small>Ramani Halisi (OpenStreetMap)</small></div>
-  <div id="net" class="status">Checking…</div>
+<div class="searchWrap">
+  <div class="searchBar">
+    <div class="icon">☰</div>
+    <input id="q" placeholder="Tafuta hapa, mfano Dodoma" autocomplete="off">
+    <div class="icon clearBtn" id="clearBtn">✕</div>
+  </div>
+  <div class="suggestions" id="suggestions"></div>
 </div>
 
-<div class="panel">
-  <div class="card">
-    <div class="row">
-      <input id="q" placeholder="Tafuta sehemu, mfano Dodoma">
-      <button onclick="searchPlace()">🔎</button>
-    </div>
-    <div class="quick">
-      <button onclick="go(-6.16,35.75,6)">🇹🇿 Tanzania</button>
-      <button onclick="go(-6.79,39.21,12)">📍 Dar es Salaam</button>
-      <button onclick="go(-6.17,35.74,12)">🏛️ Dodoma</button>
-      <button onclick="go(-7.97,31.62,10)">🌄 Sumbawanga</button>
-      <button onclick="go(0,20,2)">🌍 Dunia</button>
-    </div>
-    <div class="row" style="margin-top:7px">
-      <button class="fileBtn" onclick="document.getElementById('localFile').click()">📁 Fungua PMTiles</button>
-      <input id="localFile" type="file" accept=".pmtiles">
-    </div>
-    <div class="offlineBox" id="offlineNote">🌐 Ramani hii inatumia OpenStreetMap moja kwa moja (inahitaji intaneti). Tiles zinazoonekana huhifadhiwa kwenye kumbukumbu ya kivinjari kwa muda, hivyo maeneo uliyokwisha angalia yanaweza kuonekana hata ukiwa na mtandao dhaifu.</div>
+<div class="netChip ok" id="net">● Online</div>
+
+<div class="fabCol">
+  <button class="fab" id="layerBtn" onclick="toggleLayerPanel()">🗺️</button>
+  <button class="fab" id="locateBtn" onclick="locate()">🧭</button>
+  <div class="zoomGroup">
+    <button onclick="map.zoomIn()">+</button>
+    <button onclick="map.zoomOut()">−</button>
   </div>
 </div>
 
-<div class="bottom">
- <div id="hint" class="hint">💡 <b>Kidokezo:</b> Bonyeza "Mahali nilipo", ruhusu GPS, kisha subiri accuracy ishuke.</div>
- <div class="stats">
-  <div class="stat"><b id="coords">—</b><span>Coordinates</span></div>
-  <div class="stat"><b id="acc">—</b><span>Accuracy</span></div>
-  <div class="stat"><b id="speed">—</b><span>Speed</span></div>
-  <div class="stat"><b id="head">—</b><span>Direction</span></div>
- </div>
- <div class="actions">
-  <button onclick="locate()">📍 Mahali nilipo</button>
-  <button class="secondary" id="follow" onclick="toggleFollow()">🧭 Follow OFF</button>
-  <button class="secondary" onclick="nextHint()">💡 Hint</button>
- </div>
+<div class="layerPanel" id="layerPanel">
+  <div class="layerOpt active" data-layer="street" onclick="setLayer('street')">
+    <img src="https://tile.openstreetmap.org/6/40/32.png">Ramani
+  </div>
+  <div class="layerOpt" data-layer="sat" onclick="setLayer('sat')">
+    <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/32/40">Setalaiti
+  </div>
 </div>
+
+<div class="sheet" id="sheet">
+  <div class="sheetHandle"></div>
+  <div class="sheetBody">
+    <div class="sheetTitle"><span id="sheetTitle">—</span><span class="close" onclick="closeSheet()">✕</span></div>
+    <div class="sheetSub" id="sheetSub"></div>
+    <div class="sheetGrid" id="sheetGrid" style="display:none">
+      <div class="sheetStat"><b id="acc">—</b><span>Accuracy</span></div>
+      <div class="sheetStat"><b id="speed">—</b><span>Speed</span></div>
+      <div class="sheetStat"><b id="head">—</b><span>Direction</span></div>
+      <div class="sheetStat"><b id="followState">OFF</b><span>Follow</span></div>
+    </div>
+    <div class="sheetActions">
+      <button class="btnPrimary" id="actionMain" onclick="mainAction()">📍 Fuata (Follow)</button>
+      <button class="btnGhost" onclick="copyCoords()">📋 Nakili</button>
+    </div>
+  </div>
+</div>
+
+<div class="hintToast" id="hint"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-/*
-  REAL MAP ARCHITECTURE
-  ----------------------
-  This version renders an actual Leaflet map with live OpenStreetMap
-  tiles instead of the earlier schematic canvas continents.
-  It needs internet access to fetch map tiles (like Google Maps does).
-  Leaflet's built-in tile cache means recently viewed areas keep
-  showing while online, and browsers cache the tile images too.
-
-  A true fully-offline basemap (view maps with zero connection, ever)
-  requires a PMTiles/MBTiles archive + a vector renderer (e.g. the
-  "protomaps-leaflet" or "pmtiles" library) loaded from a file the
-  user supplies. The "Fungua PMTiles" button is kept as a hook for
-  that — wiring a specific archive format in is a follow-up step
-  once you tell me which PMTiles files you'll be shipping.
-*/
-
 const map = L.map('map', {zoomControl:false, attributionControl:true}).setView([-6.16,35.75], 6);
-L.control.zoom({position:'bottomright'}).addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+});
+const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19, attribution: 'Tiles &copy; Esri'
+});
+streetLayer.addTo(map);
+let currentLayer = 'street';
 
-let marker = null, accCircle = null, follow = false, last = null, watch = null;
-let localMapName = 'Hakuna PMTiles iliyopakiwa';
+function setLayer(kind){
+  if(kind === currentLayer) { toggleLayerPanel(); return; }
+  if(kind === 'sat'){ map.removeLayer(streetLayer); satLayer.addTo(map); }
+  else { map.removeLayer(satLayer); streetLayer.addTo(map); }
+  currentLayer = kind;
+  document.querySelectorAll('.layerOpt').forEach(el=>el.classList.toggle('active', el.dataset.layer===kind));
+  toggleLayerPanel();
+}
+function toggleLayerPanel(){ document.getElementById('layerPanel').classList.toggle('open'); }
 
-const hints=[
-'🧭 <b>Mwelekeo:</b> N = North, E = East, S = South, W = West.',
-'📍 <b>Accuracy:</b> 5–20 m ni nzuri kwa matumizi mengi ya simu; eneo lenye majengo mengi linaweza kupunguza usahihi.',
-'📶 <b>Intaneti:</b> Tiles za ramani zinahitaji data. GPS yenyewe (kupata coordinates) haihitaji data hata kidogo.',
-'🔋 <b>Battery:</b> GPS ya muda wote hutumia betri zaidi. Kwa safari ndefu tumia power bank.',
-'🚗 <b>Usalama:</b> Usitumie simu wakati unaendesha. Weka navigation kabla ya kuanza safari.',
-'💾 <b>PMTiles:</b> Kwa offline ya kweli bila intaneti kabisa, archive ya eneo husika inahitajika pamoja na renderer maalum.'
-];
+let placeMarker = null, meMarker = null, accCircle = null, follow = false, last = null, watch = null;
+let mode = null; // 'gps' | 'place'
 
-function go(lat, lon, z){
-  map.setView([lat, lon], z);
+function showToast(t){
+  const el = document.getElementById('hint');
+  el.innerHTML = t; el.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>el.classList.remove('show'), 3500);
 }
 
-function setMarker(lat, lon, accuracy){
-  if(marker){ marker.setLatLng([lat,lon]); }
-  else { marker = L.marker([lat,lon]).addTo(map); }
-  if(accuracy != null){
-    if(accCircle){ accCircle.setLatLng([lat,lon]); accCircle.setRadius(accuracy); }
-    else { accCircle = L.circle([lat,lon], {radius:accuracy, color:'#1769ff', fillColor:'#1769ff', fillOpacity:0.15, weight:1}).addTo(map); }
-  }
+function openSheet(){ document.getElementById('sheet').classList.add('open'); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('open'); }
+
+function go(lat, lon, z){ map.setView([lat, lon], z); }
+
+/* ---------- Place selection (search result / map click) ---------- */
+function showPlace(lat, lon, name, addr){
+  mode = 'place';
+  if(placeMarker) placeMarker.setLatLng([lat,lon]); else placeMarker = L.marker([lat,lon]).addTo(map);
+  document.getElementById('sheetTitle').textContent = name || 'Sehemu iliyochaguliwa';
+  document.getElementById('sheetSub').textContent = addr || (lat.toFixed(6)+', '+lon.toFixed(6));
+  document.getElementById('sheetGrid').style.display = 'none';
+  document.getElementById('actionMain').textContent = '🧭 Elekeza hapa';
+  document.getElementById('actionMain').onclick = ()=>{ window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lon, '_blank'); };
+  showPlace._coords = lat+', '+lon;
+  openSheet();
 }
 
+map.on('click', e=>{
+  const {lat, lng} = e.latlng;
+  showPlace(lat, lng, 'Pini uliyoweka', null);
+  reverseGeocode(lat, lng);
+});
+
+async function reverseGeocode(lat, lon){
+  if(!navigator.onLine) return;
+  try{
+    const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lon);
+    const d = await r.json();
+    if(d && d.display_name && mode==='place'){
+      document.getElementById('sheetTitle').textContent = (d.name || d.display_name.split(',')[0]);
+      document.getElementById('sheetSub').textContent = d.display_name;
+    }
+  }catch(e){}
+}
+
+/* ---------- Search with live suggestions ---------- */
+const qInput = document.getElementById('q');
+const sugBox = document.getElementById('suggestions');
+const clearBtn = document.getElementById('clearBtn');
+let searchTimer = null, activeIdx = -1, currentResults = [];
+
+qInput.addEventListener('input', ()=>{
+  clearBtn.classList.toggle('show', qInput.value.length>0);
+  clearTimeout(searchTimer);
+  const q = qInput.value.trim();
+  if(!q){ closeSuggestions(); return; }
+  searchTimer = setTimeout(()=>runSearch(q), 350);
+});
+clearBtn.addEventListener('click', ()=>{ qInput.value=''; clearBtn.classList.remove('show'); closeSuggestions(); qInput.focus(); });
+qInput.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ if(activeIdx>=0 && currentResults[activeIdx]) pickResult(currentResults[activeIdx]); else if(currentResults[0]) pickResult(currentResults[0]); }
+  else if(e.key==='ArrowDown'){ e.preventDefault(); moveActive(1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); moveActive(-1); }
+  else if(e.key==='Escape'){ closeSuggestions(); }
+});
+
+function moveActive(dir){
+  if(!currentResults.length) return;
+  activeIdx = (activeIdx + dir + currentResults.length) % currentResults.length;
+  renderSuggestions();
+}
+
+function closeSuggestions(){ sugBox.classList.remove('open'); sugBox.innerHTML=''; currentResults=[]; activeIdx=-1; }
+
+async function runSearch(q){
+  if(!navigator.onLine){ showToast('⚠️ Offline: search inahitaji intaneti.'); return; }
+  try{
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&addressdetails=1&q='+encodeURIComponent(q));
+    currentResults = await r.json();
+    activeIdx = -1;
+    renderSuggestions();
+  }catch(e){ showToast('⚠️ Search imeshindikana.'); }
+}
+
+function renderSuggestions(){
+  if(!currentResults.length){ sugBox.classList.remove('open'); sugBox.innerHTML=''; return; }
+  sugBox.innerHTML = currentResults.map((r,i)=>{
+    const main = (r.address && (r.address.city||r.address.town||r.address.village||r.address.county)) || r.display_name.split(',')[0];
+    return '<div class="sugItem'+(i===activeIdx?' active':'')+'" data-i="'+i+'"><span class="pin">📍</span><span class="txt">'+main+'<small>'+r.display_name+'</small></span></div>';
+  }).join('');
+  sugBox.classList.add('open');
+  sugBox.querySelectorAll('.sugItem').forEach(el=>{
+    el.addEventListener('click', ()=> pickResult(currentResults[+el.dataset.i]) );
+  });
+}
+
+function pickResult(r){
+  const lat = +r.lat, lon = +r.lon;
+  go(lat, lon, 15);
+  showPlace(lat, lon, r.display_name.split(',')[0], r.display_name);
+  qInput.value = r.display_name.split(',')[0];
+  closeSuggestions();
+  qInput.blur();
+}
+
+/* ---------- GPS / blue dot ---------- */
 function locate(){
-  if(!navigator.geolocation){ setHint('⚠️ Browser hii haisapoti GPS.'); return; }
-  if(watch !== null) return;
+  document.getElementById('locateBtn').classList.add('active');
+  if(watch !== null){ centerOnMe(); return; }
+  if(!navigator.geolocation){ showToast('⚠️ Browser hii haisapoti GPS.'); return; }
   watch = navigator.geolocation.watchPosition(p=>{
-    const c = p.coords;
-    last = p;
-    setMarker(c.latitude, c.longitude, c.accuracy);
-    document.getElementById('coords').textContent = c.latitude.toFixed(6)+', '+c.longitude.toFixed(6);
-    document.getElementById('acc').textContent = Math.round(c.accuracy)+' m';
-    document.getElementById('speed').textContent = c.speed==null ? '—' : (c.speed*3.6).toFixed(1)+' km/h';
-    document.getElementById('head').textContent = c.heading==null ? '—' : dir(c.heading)+' '+Math.round(c.heading)+'°';
-    if(follow){ map.setView([c.latitude, c.longitude], Math.max(map.getZoom(), 14)); }
-    setHint('📍 <b>GPS active:</b> Marker ya buluu inaonyesha position yako, na duara linaonyesha accuracy.');
+    const c = p.coords; last = p;
+    setMeMarker(c.latitude, c.longitude, c.accuracy);
+    if(mode !== 'place'){
+      mode = 'gps';
+      document.getElementById('sheetTitle').textContent = '📍 Mahali Nilipo';
+      document.getElementById('sheetSub').textContent = c.latitude.toFixed(6)+', '+c.longitude.toFixed(6);
+      document.getElementById('sheetGrid').style.display = 'grid';
+      document.getElementById('acc').textContent = Math.round(c.accuracy)+' m';
+      document.getElementById('speed').textContent = c.speed==null?'—':(c.speed*3.6).toFixed(1)+' km/h';
+      document.getElementById('head').textContent = c.heading==null?'—':dir(c.heading)+' '+Math.round(c.heading)+'°';
+      document.getElementById('followState').textContent = follow?'ON':'OFF';
+      document.getElementById('actionMain').textContent = follow ? '🧭 Follow: ON' : '🧭 Fuata (Follow)';
+      document.getElementById('actionMain').onclick = mainAction;
+      openSheet();
+    }
+    if(follow){ map.setView([c.latitude, c.longitude], Math.max(map.getZoom(),15)); }
   }, e=>{
-    setHint('⚠️ '+({1:'Ruhusa ya GPS imekataliwa.',2:'GPS haikuweza kupata position.',3:'GPS imechukua muda mrefu.'}[e.code]||'GPS error'));
+    showToast('⚠️ '+({1:'Ruhusa ya GPS imekataliwa.',2:'GPS haikuweza kupata position.',3:'GPS imechukua muda mrefu.'}[e.code]||'GPS error'));
   }, {enableHighAccuracy:true, maximumAge:2000, timeout:15000});
 }
 
-function toggleFollow(){
+function setMeMarker(lat, lon, accuracy){
+  if(!meMarker){
+    const icon = L.divIcon({className:'', html:'<div class="meDotWrap"><div class="mePulse"></div><div class="meDot"></div></div>', iconSize:[16,16], iconAnchor:[8,8]});
+    meMarker = L.marker([lat,lon], {icon, zIndexOffset:500}).addTo(map);
+  } else { meMarker.setLatLng([lat,lon]); }
+  if(accuracy!=null){
+    if(!accCircle) accCircle = L.circle([lat,lon], {radius:accuracy, color:'#1a73e8', fillColor:'#1a73e8', fillOpacity:0.12, weight:1}).addTo(map);
+    else { accCircle.setLatLng([lat,lon]); accCircle.setRadius(accuracy); }
+  }
+}
+
+function centerOnMe(){ if(last){ map.setView([last.coords.latitude, last.coords.longitude], Math.max(map.getZoom(),15)); mode='gps'; openSheet(); } else locate(); }
+
+function mainAction(){
   follow = !follow;
-  document.getElementById('follow').textContent = '🧭 Follow '+(follow?'ON':'OFF');
-  if(follow && last){ map.setView([last.coords.latitude, last.coords.longitude], Math.max(map.getZoom(),14)); }
+  document.getElementById('followState').textContent = follow?'ON':'OFF';
+  document.getElementById('actionMain').textContent = follow ? '🧭 Follow: ON' : '🧭 Fuata (Follow)';
+  if(follow && last) map.setView([last.coords.latitude, last.coords.longitude], Math.max(map.getZoom(),15));
+}
+
+function copyCoords(){
+  const txt = document.getElementById('sheetSub').textContent;
+  navigator.clipboard?.writeText(txt).then(()=>showToast('📋 Coordinates zimenakiliwa.')).catch(()=>showToast('⚠️ Imeshindikana kunakili.'));
 }
 
 function dir(x){ return ['N','NE','E','SE','S','SW','W','NW'][Math.round(x/45)%8]; }
-function setHint(t){ document.getElementById('hint').innerHTML = t; }
-function nextHint(){ setHint(hints[Math.floor(Math.random()*hints.length)]); }
 
 function network(){
   const n = document.getElementById('net');
   n.textContent = navigator.onLine ? '● Online' : '● Offline';
-  n.className = 'status ' + (navigator.onLine ? 'ok' : 'bad');
-  document.getElementById('offlineNote').textContent = navigator.onLine
-    ? '🌐 Ramani hii inatumia OpenStreetMap moja kwa moja (inahitaji intaneti). Tiles zinazoonekana huhifadhiwa kwenye kumbukumbu ya kivinjari kwa muda.'
-    : '⚠️ Uko offline. Maeneo ambayo hujakwisha angalia hayataonekana mpaka urudi online. GPS bado inafanya kazi.';
+  n.className = 'netChip ' + (navigator.onLine ? 'ok' : 'bad');
 }
 addEventListener('online', network); addEventListener('offline', network); network();
 
-async function searchPlace(){
-  const q = document.getElementById('q').value.trim();
-  if(!q) return;
-  if(!navigator.onLine){ setHint('⚠️ <b>Offline:</b> Search ya majina haipatikani bila data. Tumia GPS badala yake.'); return; }
-  try{
-    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));
-    const d = await r.json();
-    if(!d.length){ setHint('❌ Sehemu haikupatikana.'); return; }
-    const lat = +d[0].lat, lon = +d[0].lon;
-    go(lat, lon, 13);
-    setMarker(lat, lon, null);
-    setHint('📌 <b>Found:</b> ' + d[0].display_name);
-  }catch(e){ setHint('⚠️ Search imeshindikana.'); }
-}
-
-document.getElementById('q').addEventListener('keydown', e=>{ if(e.key==='Enter') searchPlace(); });
-
-document.getElementById('localFile').addEventListener('change', e=>{
-  const f = e.target.files[0];
-  if(!f) return;
-  localMapName = 'Offline archive: ' + f.name;
-  setHint('💾 <b>PMTiles imechaguliwa:</b> ' + f.name + '. Ili archive hii ionekane kwenye ramani, tunahitaji kuunganisha maktaba ya PMTiles/vector-renderer — niambie na tutaingiza hatua inayofuata.');
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.searchWrap')) closeSuggestions();
 });
 </script>
 </body>
-</html>
+  </html>
