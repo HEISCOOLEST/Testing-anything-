@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday 🎂</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;height:100vh;overflow:hidden;font-family:Arial,sans-serif;background:linear-gradient(135deg,#ff9a9e,#fad0c4);display:flex;justify-content:center;align-items:center;text-align:center}
+.container{position:relative;z-index:5;background:rgba(255,255,255,.18);padding:35px 25px;border-radius:25px;backdrop-filter:blur(8px);box-shadow:0 10px 35px rgba(0,0,0,.2);animation:appear 1.5s ease;max-width:90%}
+h1{font-size:clamp(38px,8vw,75px);margin:0;color:white;text-shadow:3px 3px 8px rgba(0,0,0,.25);animation:bounce 2s infinite}
+h2{color:white;font-size:clamp(22px,5vw,38px);margin:15px 0}
+p{color:white;font-size:20px;line-height:1.6}
+.cake{font-size:90px;margin:10px;animation:cake 1.5s infinite alternate}
+.heart{font-size:30px;animation:heart 1s infinite alternate}
+.balloon{position:absolute;bottom:-150px;width:65px;height:80px;border-radius:50%;animation:float 9s linear infinite}
+.balloon:after{content:"";position:absolute;width:2px;height:120px;background:white;top:75px;left:50%}
+.b1{left:8%;background:#ff4d6d}.b2{left:25%;background:#4d96ff;animation-delay:2s}.b3{left:70%;background:#ffd93d;animation-delay:1s}.b4{left:88%;background:#6bcb77;animation-delay:3s}
+.confetti{position:absolute;width:10px;height:10px;top:-20px;animation:fall 5s linear infinite}
+.c1{left:10%;background:#ff4d6d}.c2{left:30%;background:#ffd93d;animation-delay:1s}.c3{left:50%;background:#4d96ff;animation-delay:2s}.c4{left:70%;background:#6bcb77;animation-delay:.5s}.c5{left:90%;background:#9b5de5;animation-delay:1.5s}
+@keyframes float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-120vh) rotate(360deg)}}
+@keyframes fall{from{transform:translateY(0) rotate(0)}to{transform:translateY(110vh) rotate(720deg)}}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes cake{from{transform:scale(1)}to{transform:scale(1.12)}}
+@keyframes heart{from{transform:scale(1)}to{transform:scale(1.3)}}
+@keyframes appear{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="balloon b1"></div><div class="balloon b2"></div><div class="balloon b3"></div><div class="balloon b4"></div>
+<div class="confetti c1"></div><div class="confetti c2"></div><div class="confetti c3"></div><div class="confetti c4"></div><div class="confetti c5"></div>
+<div class="container">
+<div class="cake">🎂</div>
+<h1>🎉 Happy Birthday! 🎉</h1>
+<h2>To My Friend's Wonderful Mom ❤️</h2>
+<p>Wishing you a beautiful birthday filled with<br>happiness, love, peace and countless blessings.</p>
+<div class="heart">💐 ❤️ 🎁 ❤️ 💐</div>
+</div>
+</body>
+</html>
