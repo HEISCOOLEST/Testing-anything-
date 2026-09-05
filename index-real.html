@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Safari GPS — Ramani Halisi Tanzania & Dunia</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+*{box-sizing:border-box}html,body,#app{margin:0;width:100%;height:100%;font-family:Arial,sans-serif}
+#app{position:relative;background:#eef3f7;overflow:hidden}
+#map{position:absolute;inset:0;background:#dfe7ee}
+.top{position:absolute;z-index:1000;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}
+.brand,.status,.card,.hint,.stat{background:#fff;border-radius:16px;box-shadow:0 4px 18px #0002}
+.brand{padding:10px 14px;font-weight:800;pointer-events:auto}.brand small{display:block;font-size:10px;color:#667085;font-weight:500}
+.status{padding:8px 11px;font-size:12px}.ok{color:#087443}.bad{color:#b42318}
+.panel{position:absolute;z-index:1000;top:78px;left:12px;width:min(440px,calc(100% - 24px))}
+.card{padding:10px}.row{display:flex;gap:7px}.row input{min-width:0;flex:1;border:1px solid #d0d5dd;border-radius:11px;padding:11px;font-size:14px}
+button{border:0;border-radius:11px;padding:10px 12px;font-weight:700;background:#1769ff;color:white;cursor:pointer}.secondary{background:#eef4ff;color:#175cd3}
+.quick{display:flex;gap:6px;overflow:auto;margin-top:8px}.quick button{white-space:nowrap;border:1px solid #e4e7ec;background:#fff;color:#172033;border-radius:18px;padding:7px 10px;font-size:11px}
+.bottom{position:absolute;z-index:1000;bottom:12px;left:12px;right:12px;max-width:540px;margin:auto;display:grid;gap:7px}
+.hint{padding:10px 12px;background:#172033;color:#fff;font-size:12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stat{padding:9px}.stat b{display:block;font-size:14px}.stat span{font-size:10px;color:#667085}
+.actions{display:flex;gap:7px}.actions button{flex:1}.offlineBox{font-size:11px;color:#475467;margin-top:7px}
+#localFile{display:none}.fileBtn{background:#f2f4f7;color:#344054}
+.leaflet-control-attribution{font-size:9px}
+@media(min-width:700px){.bottom{left:auto;right:16px;margin:0}}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="map"></div>
+
+<div class="top">
+  <div class="brand">🧭 Safari GPS <small>Ramani Halisi (OpenStreetMap)</small></div>
+  <div id="net" class="status">Checking…</div>
+</div>
+
+<div class="panel">
+  <div class="card">
+    <div class="row">
+      <input id="q" placeholder="Tafuta sehemu, mfano Dodoma">
+      <button onclick="searchPlace()">🔎</button>
+    </div>
+    <div class="quick">
+      <button onclick="go(-6.16,35.75,6)">🇹🇿 Tanzania</button>
+      <button onclick="go(-6.79,39.21,12)">📍 Dar es Salaam</button>
+      <button onclick="go(-6.17,35.74,12)">🏛️ Dodoma</button>
+      <button onclick="go(-7.97,31.62,10)">🌄 Sumbawanga</button>
+      <button onclick="go(0,20,2)">🌍 Dunia</button>
+    </div>
+    <div class="row" style="margin-top:7px">
+      <button class="fileBtn" onclick="document.getElementById('localFile').click()">📁 Fungua PMTiles</button>
+      <input id="localFile" type="file" accept=".pmtiles">
+    </div>
+    <div class="offlineBox" id="offlineNote">🌐 Ramani hii inatumia OpenStreetMap moja kwa moja (inahitaji intaneti). Tiles zinazoonekana huhifadhiwa kwenye kumbukumbu ya kivinjari kwa muda, hivyo maeneo uliyokwisha angalia yanaweza kuonekana hata ukiwa na mtandao dhaifu.</div>
+  </div>
+</div>
+
+<div class="bottom">
+ <div id="hint" class="hint">💡 <b>Kidokezo:</b> Bonyeza "Mahali nilipo", ruhusu GPS, kisha subiri accuracy ishuke.</div>
+ <div class="stats">
+  <div class="stat"><b id="coords">—</b><span>Coordinates</span></div>
+  <div class="stat"><b id="acc">—</b><span>Accuracy</span></div>
+  <div class="stat"><b id="speed">—</b><span>Speed</span></div>
+  <div class="stat"><b id="head">—</b><span>Direction</span></div>
+ </div>
+ <div class="actions">
+  <button onclick="locate()">📍 Mahali nilipo</button>
+  <button class="secondary" id="follow" onclick="toggleFollow()">🧭 Follow OFF</button>
+  <button class="secondary" onclick="nextHint()">💡 Hint</button>
+ </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/*
+  REAL MAP ARCHITECTURE
+  ----------------------
+  This version renders an actual Leaflet map with live OpenStreetMap
+  tiles instead of the earlier schematic canvas continents.
+  It needs internet access to fetch map tiles (like Google Maps does).
+  Leaflet's built-in tile cache means recently viewed areas keep
+  showing while online, and browsers cache the tile images too.
+
+  A true fully-offline basemap (view maps with zero connection, ever)
+  requires a PMTiles/MBTiles archive + a vector renderer (e.g. the
+  "protomaps-leaflet" or "pmtiles" library) loaded from a file the
+  user supplies. The "Fungua PMTiles" button is kept as a hook for
+  that — wiring a specific archive format in is a follow-up step
+  once you tell me which PMTiles files you'll be shipping.
+*/
+
+const map = L.map('map', {zoomControl:false, attributionControl:true}).setView([-6.16,35.75], 6);
+L.control.zoom({position:'bottomright'}).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let marker = null, accCircle = null, follow = false, last = null, watch = null;
+let localMapName = 'Hakuna PMTiles iliyopakiwa';
+
+const hints=[
+'🧭 <b>Mwelekeo:</b> N = North, E = East, S = South, W = West.',
+'📍 <b>Accuracy:</b> 5–20 m ni nzuri kwa matumizi mengi ya simu; eneo lenye majengo mengi linaweza kupunguza usahihi.',
+'📶 <b>Intaneti:</b> Tiles za ramani zinahitaji data. GPS yenyewe (kupata coordinates) haihitaji data hata kidogo.',
+'🔋 <b>Battery:</b> GPS ya muda wote hutumia betri zaidi. Kwa safari ndefu tumia power bank.',
+'🚗 <b>Usalama:</b> Usitumie simu wakati unaendesha. Weka navigation kabla ya kuanza safari.',
+'💾 <b>PMTiles:</b> Kwa offline ya kweli bila intaneti kabisa, archive ya eneo husika inahitajika pamoja na renderer maalum.'
+];
+
+function go(lat, lon, z){
+  map.setView([lat, lon], z);
+}
+
+function setMarker(lat, lon, accuracy){
+  if(marker){ marker.setLatLng([lat,lon]); }
+  else { marker = L.marker([lat,lon]).addTo(map); }
+  if(accuracy != null){
+    if(accCircle){ accCircle.setLatLng([lat,lon]); accCircle.setRadius(accuracy); }
+    else { accCircle = L.circle([lat,lon], {radius:accuracy, color:'#1769ff', fillColor:'#1769ff', fillOpacity:0.15, weight:1}).addTo(map); }
+  }
+}
+
+function locate(){
+  if(!navigator.geolocation){ setHint('⚠️ Browser hii haisapoti GPS.'); return; }
+  if(watch !== null) return;
+  watch = navigator.geolocation.watchPosition(p=>{
+    const c = p.coords;
+    last = p;
+    setMarker(c.latitude, c.longitude, c.accuracy);
+    document.getElementById('coords').textContent = c.latitude.toFixed(6)+', '+c.longitude.toFixed(6);
+    document.getElementById('acc').textContent = Math.round(c.accuracy)+' m';
+    document.getElementById('speed').textContent = c.speed==null ? '—' : (c.speed*3.6).toFixed(1)+' km/h';
+    document.getElementById('head').textContent = c.heading==null ? '—' : dir(c.heading)+' '+Math.round(c.heading)+'°';
+    if(follow){ map.setView([c.latitude, c.longitude], Math.max(map.getZoom(), 14)); }
+    setHint('📍 <b>GPS active:</b> Marker ya buluu inaonyesha position yako, na duara linaonyesha accuracy.');
+  }, e=>{
+    setHint('⚠️ '+({1:'Ruhusa ya GPS imekataliwa.',2:'GPS haikuweza kupata position.',3:'GPS imechukua muda mrefu.'}[e.code]||'GPS error'));
+  }, {enableHighAccuracy:true, maximumAge:2000, timeout:15000});
+}
+
+function toggleFollow(){
+  follow = !follow;
+  document.getElementById('follow').textContent = '🧭 Follow '+(follow?'ON':'OFF');
+  if(follow && last){ map.setView([last.coords.latitude, last.coords.longitude], Math.max(map.getZoom(),14)); }
+}
+
+function dir(x){ return ['N','NE','E','SE','S','SW','W','NW'][Math.round(x/45)%8]; }
+function setHint(t){ document.getElementById('hint').innerHTML = t; }
+function nextHint(){ setHint(hints[Math.floor(Math.random()*hints.length)]); }
+
+function network(){
+  const n = document.getElementById('net');
+  n.textContent = navigator.onLine ? '● Online' : '● Offline';
+  n.className = 'status ' + (navigator.onLine ? 'ok' : 'bad');
+  document.getElementById('offlineNote').textContent = navigator.onLine
+    ? '🌐 Ramani hii inatumia OpenStreetMap moja kwa moja (inahitaji intaneti). Tiles zinazoonekana huhifadhiwa kwenye kumbukumbu ya kivinjari kwa muda.'
+    : '⚠️ Uko offline. Maeneo ambayo hujakwisha angalia hayataonekana mpaka urudi online. GPS bado inafanya kazi.';
+}
+addEventListener('online', network); addEventListener('offline', network); network();
+
+async function searchPlace(){
+  const q = document.getElementById('q').value.trim();
+  if(!q) return;
+  if(!navigator.onLine){ setHint('⚠️ <b>Offline:</b> Search ya majina haipatikani bila data. Tumia GPS badala yake.'); return; }
+  try{
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));
+    const d = await r.json();
+    if(!d.length){ setHint('❌ Sehemu haikupatikana.'); return; }
+    const lat = +d[0].lat, lon = +d[0].lon;
+    go(lat, lon, 13);
+    setMarker(lat, lon, null);
+    setHint('📌 <b>Found:</b> ' + d[0].display_name);
+  }catch(e){ setHint('⚠️ Search imeshindikana.'); }
+}
+
+document.getElementById('q').addEventListener('keydown', e=>{ if(e.key==='Enter') searchPlace(); });
+
+document.getElementById('localFile').addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  localMapName = 'Offline archive: ' + f.name;
+  setHint('💾 <b>PMTiles imechaguliwa:</b> ' + f.name + '. Ili archive hii ionekane kwenye ramani, tunahitaji kuunganisha maktaba ya PMTiles/vector-renderer — niambie na tutaingiza hatua inayofuata.');
+});
+</script>
+</body>
+</html>
