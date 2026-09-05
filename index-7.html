@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Safari GPS — Offline Tanzania & World</title>
+<style>
+*{box-sizing:border-box}html,body,#app{margin:0;width:100%;height:100%;font-family:Arial,sans-serif}
+#app{position:relative;background:#eef3f7;overflow:hidden}#map{position:absolute;inset:0;background:#dfe7ee}
+.top{position:absolute;z-index:10;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}
+.brand,.status,.card,.hint,.stat{background:#fff;border-radius:16px;box-shadow:0 4px 18px #0002}
+.brand{padding:10px 14px;font-weight:800;pointer-events:auto}.brand small{display:block;font-size:10px;color:#667085;font-weight:500}
+.status{padding:8px 11px;font-size:12px}.ok{color:#087443}.bad{color:#b42318}
+.panel{position:absolute;z-index:10;top:78px;left:12px;width:min(440px,calc(100% - 24px))}
+.card{padding:10px}.row{display:flex;gap:7px}.row input{min-width:0;flex:1;border:1px solid #d0d5dd;border-radius:11px;padding:11px;font-size:14px}
+button{border:0;border-radius:11px;padding:10px 12px;font-weight:700;background:#1769ff;color:white}.secondary{background:#eef4ff;color:#175cd3}
+.quick{display:flex;gap:6px;overflow:auto;margin-top:8px}.quick button{white-space:nowrap;border:1px solid #e4e7ec;background:#fff;color:#172033;border-radius:18px;padding:7px 10px;font-size:11px}
+.bottom{position:absolute;z-index:10;bottom:12px;left:12px;right:12px;max-width:540px;margin:auto;display:grid;gap:7px}
+.hint{padding:10px 12px;background:#172033;color:#fff;font-size:12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stat{padding:9px}.stat b{display:block;font-size:14px}.stat span{font-size:10px;color:#667085}
+.actions{display:flex;gap:7px}.actions button{flex:1}.offlineBox{font-size:11px;color:#475467;margin-top:7px}
+#localFile{display:none}.fileBtn{background:#f2f4f7;color:#344054}
+@media(min-width:700px){.bottom{left:auto;right:16px;margin:0}}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="map"></canvas>
+
+<div class="top">
+  <div class="brand">🧭 Safari GPS <small>Offline Tanzania • World</small></div>
+  <div id="net" class="status">Checking…</div>
+</div>
+
+<div class="panel">
+  <div class="card">
+    <div class="row">
+      <input id="q" placeholder="Tafuta sehemu, mfano Dodoma">
+      <button onclick="searchPlace()">🔎</button>
+    </div>
+    <div class="quick">
+      <button onclick="go(-6.16,35.75,1.0)">🇹🇿 Tanzania</button>
+      <button onclick="go(-6.79,39.21,2.8)">📍 Dar</button>
+      <button onclick="go(-6.17,35.74,3.5)">🏛️ Dodoma</button>
+      <button onclick="go(-7.97,31.62,3)">🌄 Sumbawanga</button>
+      <button onclick="go(0,20,.45)">🌍 Dunia</button>
+    </div>
+    <div class="row" style="margin-top:7px">
+      <button class="fileBtn" onclick="document.getElementById('localFile').click()">📁 Fungua PMTiles</button>
+      <input id="localFile" type="file" accept=".pmtiles">
+    </div>
+    <div class="offlineBox">💾 Ramani ya offline hutumia faili la <b>.pmtiles</b> ulilohifadhi kwenye simu/PC.</div>
+  </div>
+</div>
+
+<div class="bottom">
+ <div id="hint" class="hint">💡 <b>Kidokezo:</b> Bonyeza “Mahali nilipo”, ruhusu GPS, kisha subiri accuracy ishuke.</div>
+ <div class="stats">
+  <div class="stat"><b id="coords">—</b><span>Coordinates</span></div>
+  <div class="stat"><b id="acc">—</b><span>Accuracy</span></div>
+  <div class="stat"><b id="speed">—</b><span>Speed</span></div>
+  <div class="stat"><b id="head">—</b><span>Direction</span></div>
+ </div>
+ <div class="actions">
+  <button onclick="locate()">📍 Mahali nilipo</button>
+  <button class="secondary" id="follow" onclick="toggleFollow()">🧭 Follow OFF</button>
+  <button class="secondary" onclick="nextHint()">💡 Hint</button>
+ </div>
+</div>
+</div>
+
+<script>
+/*
+  OFFLINE ARCHITECTURE
+  --------------------
+  This file keeps GPS/navigation UI fully local.
+  For a real offline basemap, place a PMTiles archive beside this file
+  and open it through the "Fungua PMTiles" button.
+
+  PMTiles is designed for browser map archives. For a global detailed
+  basemap, a full planet archive can be very large, so regional extracts
+  (e.g. Tanzania) are much more practical for phones.
+*/
+
+const canvas=document.getElementById('map'),ctx=canvas.getContext('2d');
+let center={lat:0,lon:20},zoom=.45,marker=null,follow=false,last=null,watch=null;
+let localMapName='Hakuna PMTiles iliyopakiwa';
+const hints=[
+'🧭 <b>Mwelekeo:</b> N = North, E = East, S = South, W = West.',
+'📍 <b>Accuracy:</b> 5–20 m ni nzuri kwa matumizi mengi ya simu; eneo lenye majengo mengi linaweza kupunguza usahihi.',
+'📶 <b>Offline:</b> GPS haihitaji mobile data, lakini kutafuta maeneo na kupakua ramani kunahitaji data kabla ya kwenda offline.',
+'🔋 <b>Battery:</b> GPS ya muda wote hutumia betri zaidi. Kwa safari ndefu tumia power bank.',
+'🚗 <b>Usalama:</b> Usitumie simu wakati unaendesha. Weka navigation kabla ya kuanza safari.',
+'💾 <b>PMTiles:</b> Kwa offline ya kweli, tumia archive ya eneo unalohitaji badala ya kupakua tiles nyingi za OSM moja kwa moja.'
+];
+
+function resize(){canvas.width=innerWidth*devicePixelRatio;canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);draw()}
+addEventListener('resize',resize);resize();
+
+function project(lat,lon){
+ const w=innerWidth,h=innerHeight;
+ const scale=256*Math.pow(2,zoom);
+ const x=(lon+180)/360*scale;
+ const y=(1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*scale;
+ return [x,y];
+}
+function unproject(x,y){
+ const scale=256*Math.pow(2,zoom);
+ const lon=x/scale*360-180;
+ const n=Math.PI-2*Math.PI*y/scale;
+ const lat=180/Math.PI*Math.atan(Math.sinh(n));
+ return [lat,lon];
+}
+function draw(){
+ const w=innerWidth,h=innerHeight;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#e8eef2';ctx.fillRect(0,0,w,h);
+ const [cx,cy]=project(center.lat,center.lon);
+ drawGrid(cx,cy);
+ drawWorldShapes(cx,cy);
+ if(marker) drawMarker(marker.lat,marker.lon);
+}
+function worldToScreen(lat,lon,cx,cy){
+ const [x,y]=project(lat,lon);
+ return [x-cx+innerWidth/2,y-cy+innerHeight/2];
+}
+function drawGrid(cx,cy){
+ ctx.strokeStyle='#cbd5df';ctx.lineWidth=1;
+ for(let lon=-180;lon<=180;lon+=30){const a=worldToScreen(80,lon,cx,cy),b=worldToScreen(-80,lon,cx,cy);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}
+ for(let lat=-60;lat<=60;lat+=30){const a=worldToScreen(lat,-180,cx,cy),b=worldToScreen(lat,180,cx,cy);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}
+}
+function drawWorldShapes(cx,cy){
+ /* lightweight offline orientation layer: continents are deliberately schematic */
+ const africa=[[37,-17],[35,-5],[32,8],[30,20],[15,34],[5,41],[-10,51],[-25,43],[-35,31],[-34,18],[-25,12],[-12,8],[0,-17],[18,-17],[37,-17]];
+ const tanzania=[[-1.0,29.3],[-1.0,40.5],[-11.8,40.5],[-11.8,29.3],[-1.0,29.3]];
+ poly(africa,cx,cy,'#d8e6d2','#a8bda0');poly(tanzania,cx,cy,'#b9d8a8','#6f9c63');
+ const madagascar=[[-12.5,43.2],[-13,50],[-25.5,50],[-25,44],[-12.5,43.2]];poly(madagascar,cx,cy,'#d8e6d2','#a8bda0');
+ ctx.fillStyle='#344054';ctx.font='700 12px Arial';
+ const [tx,ty]=worldToScreen(-6.2,34.9,cx,cy);ctx.fillText('TANZANIA',tx-30,ty);
+ ctx.fillStyle='#667085';ctx.font='11px Arial';ctx.fillText(localMapName,14,innerHeight-20);
+}
+function poly(points,cx,cy,fill,stroke){
+ ctx.beginPath();points.forEach((p,i)=>{const s=worldToScreen(p[0],p[1],cx,cy);i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])});ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.stroke();
+}
+function drawMarker(lat,lon){
+ const [cx,cy]=project(center.lat,center.lon),[x,y]=worldToScreen(lat,lon,cx,cy);
+ ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.fillStyle='#1769ff';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+}
+function go(lat,lon,z){center={lat,lon};zoom=z;draw()}
+function locate(){
+ if(!navigator.geolocation){setHint('⚠️ Browser hii haisapoti GPS.');return}
+ if(watch!==null)return;
+ watch=navigator.geolocation.watchPosition(p=>{
+  const c=p.coords;marker={lat:c.latitude,lon:c.longitude};last=p;
+  document.getElementById('coords').textContent=c.latitude.toFixed(6)+', '+c.longitude.toFixed(6);
+  document.getElementById('acc').textContent=Math.round(c.accuracy)+' m';
+  document.getElementById('speed').textContent=c.speed==null?'—':(c.speed*3.6).toFixed(1)+' km/h';
+  document.getElementById('head').textContent=c.heading==null?'—':dir(c.heading)+' '+Math.round(c.heading)+'°';
+  if(follow){center={lat:c.latitude,lon:c.longitude};zoom=Math.max(4,zoom);draw()}
+  setHint('📍 <b>GPS active:</b> Marker inaonyesha position yako. Circle ya accuracy haionyeshwi kwenye lightweight map hii.');
+ },e=>setHint('⚠️ '+({1:'Ruhusa ya GPS imekataliwa.',2:'GPS haikuweza kupata position.',3:'GPS imechukua muda mrefu.'}[e.code]||'GPS error')));
+}
+function toggleFollow(){follow=!follow;document.getElementById('follow').textContent='🧭 Follow '+(follow?'ON':'OFF');if(follow&&last){center={lat:last.coords.latitude,lon:last.coords.longitude};draw()}}
+function dir(x){return ['N','NE','E','SE','S','SW','W','NW'][Math.round(x/45)%8]}
+function setHint(t){document.getElementById('hint').innerHTML=t}
+function nextHint(){setHint(hints[Math.floor(Math.random()*hints.length)])}
+function network(){const n=document.getElementById('net');n.textContent=navigator.onLine?'● Online':'● Offline';n.className='status '+(navigator.onLine?'ok':'bad')}
+addEventListener('online',network);addEventListener('offline',network);network();
+
+async function searchPlace(){
+ const q=document.getElementById('q').value.trim();
+ if(!q)return;
+ if(!navigator.onLine){setHint('⚠️ <b>Offline:</b> Search ya majina haipatikani bila data. Tumia GPS au load PMTiles ya eneo husika.');return}
+ try{
+  const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));
+  const d=await r.json();if(!d.length){setHint('❌ Sehemu haikupatikana.');return}
+  go(+d[0].lat,+d[0].lon,4);marker={lat:+d[0].lat,lon:+d[0].lon};
+  setHint('📌 <b>Found:</b> '+d[0].display_name);draw()
+ }catch(e){setHint('⚠️ Search imeshindikana.')}
+}
+
+document.getElementById('localFile').addEventListener('change',e=>{
+ const f=e.target.files[0];if(!f)return;
+ localMapName='Offline archive: '+f.name;
+ setHint('💾 <b>PMTiles imechaguliwa:</b> '+f.name+'. UI imehifadhi jina la archive; renderer ya vector PMTiles inaweza kuunganishwa kwenye MapLibre/PMTiles runtime kwa archive hii.');
+});
+
+/* Mouse/touch pan + zoom for the lightweight offline view */
+let drag=null;
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,c:center}})
+canvas.addEventListener('pointermove',e=>{
+ if(!drag)return;
+ const a=project(drag.c.lat,drag.c.lon),dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+ const u=unproject(a[0]-dx,a[1]-dy);center={lat:u[0],lon:u[1]};draw()
+});
+canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.25,Math.min(6,zoom+(e.deltaY<0?.25:-.25)));draw()},{passive:false});
+</script>
+</body>
+</html>
