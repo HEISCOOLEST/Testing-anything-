@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROBNEY FARM — Farm Manager</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{--soil:#171510;--panel:#26231b;--green:#8fae45;--cream:#eee7d5;--muted:#aaa38f;--line:rgba(238,231,213,.09)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:"DM Sans",sans-serif;background:radial-gradient(circle at 80% 10%,rgba(143,174,69,.1),transparent 25%),radial-gradient(circle at 10% 90%,rgba(215,169,66,.06),transparent 25%),var(--soil);color:var(--cream);min-height:100vh}button{font-family:inherit;cursor:pointer}
+.app{display:flex;min-height:100vh}.sidebar{width:245px;border-right:1px solid var(--line);padding:28px 18px;background:rgba(23,21,16,.92);position:fixed;top:0;bottom:0;left:0;z-index:20}.logo{display:flex;align-items:center;gap:11px;padding:0 10px;margin-bottom:45px}.logo-mark{width:38px;height:38px;background:var(--green);color:#171510;display:grid;place-items:center;border-radius:12px 4px 12px 4px;font-size:19px;font-weight:700}.logo h2{font-family:"Space Grotesk";font-size:17px}.logo span{display:block;color:var(--muted);font-size:10px;margin-top:2px;letter-spacing:1px;text-transform:uppercase}.nav-title{font-size:10px;color:#6f6a5b;letter-spacing:1.5px;text-transform:uppercase;margin:0 10px 10px}.nav{display:flex;flex-direction:column;gap:5px}.nav button{background:transparent;border:0;color:#aaa38f;text-align:left;padding:12px 13px;border-radius:9px;display:flex;gap:12px;align-items:center;font-size:13px;transition:.2s}.nav button:hover,.nav button.active{background:var(--panel);color:var(--cream)}.nav button.active{border-left:3px solid var(--green)}.side-bottom{position:absolute;bottom:25px;left:18px;right:18px}.farm-status{border:1px solid var(--line);padding:14px;border-radius:12px;background:rgba(255,255,255,.025)}.status-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:6px;box-shadow:0 0 8px rgba(143,174,69,.8)}.farm-status p{font-size:11px;color:var(--muted);margin-top:6px}
+main{margin-left:245px;width:calc(100% - 245px);padding:30px 38px}.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:35px}.eyebrow{color:var(--green);text-transform:uppercase;font-size:10px;letter-spacing:2px;font-weight:700;margin-bottom:7px}h1{font-family:"Space Grotesk";font-size:clamp(27px,3vw,42px);letter-spacing:-1.8px;line-height:1}.date{margin-top:8px;color:var(--muted);font-size:12px}.weather{border:1px solid var(--line);background:var(--panel);padding:12px 17px;border-radius:12px;text-align:right}.weather strong{font-size:21px}.weather small{display:block;color:var(--muted);margin-top:3px}
+.hero{min-height:225px;position:relative;overflow:hidden;border-radius:19px;background:linear-gradient(90deg,rgba(21,19,14,.96),rgba(21,19,14,.65)),linear-gradient(135deg,#526b31,#181a12);border:1px solid var(--line);padding:31px;margin-bottom:20px}.hero:after{content:"";position:absolute;right:-80px;bottom:-100px;width:430px;height:230px;background:repeating-linear-gradient(-18deg,transparent 0,transparent 13px,rgba(143,174,69,.18) 14px,transparent 16px);transform:rotate(-4deg)}.hero h2,.hero p,.hero-actions{position:relative;z-index:2}.hero h2{font-family:"Space Grotesk";max-width:470px;font-size:30px;line-height:1.05;letter-spacing:-1px}.hero p{max-width:430px;margin-top:12px;color:#c0b9a6;font-size:13px;line-height:1.6}.hero-actions{display:flex;gap:9px;margin-top:21px}.primary-btn,.secondary-btn{border:0;border-radius:8px;padding:10px 15px;font-size:12px;font-weight:700}.primary-btn{background:var(--green);color:#16160f}.secondary-btn{background:rgba(255,255,255,.07);color:var(--cream);border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}.stat-card{position:relative;overflow:hidden}.stat-card:before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:var(--green)}.stat-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.stat-number{font-family:"Space Grotesk";font-size:28px;margin:8px 0 5px}.stat-foot{font-size:11px;color:#8c8778}.positive{color:var(--green)!important}
+.content-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:15px}.section-card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:21px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.section-head h3{font-family:"Space Grotesk";font-size:16px}.view{color:var(--green);border:0;background:transparent;font-size:11px}.activity{display:flex;flex-direction:column}.activity-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.activity-row:last-child{border-bottom:0}.activity-icon{width:35px;height:35px;border-radius:9px;display:grid;place-items:center;background:#343025;font-size:15px}.activity-info{flex:1}.activity-info strong{display:block;font-size:12px}.activity-info span{display:block;color:var(--muted);font-size:10px;margin-top:3px}.amount{font-size:12px;font-weight:700}
+.health{display:flex;flex-direction:column;gap:18px}.health-item{display:grid;grid-template-columns:75px 1fr 40px;gap:10px;align-items:center}.health-item label{font-size:11px;color:var(--muted)}.progress{height:6px;background:#181711;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:var(--green);border-radius:20px}.health-item b{font-size:11px;text-align:right}
+.lower-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-top:15px}.mini-card{min-height:145px}.mini-top{display:flex;justify-content:space-between}.mini-icon{font-size:22px}.mini-value{font-family:"Space Grotesk";font-size:25px;margin-top:15px}.mini-label{color:var(--muted);font-size:11px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;place-items:center;padding:20px}.modal.open{display:grid}.modal-box{width:min(430px,100%);background:#252219;border:1px solid var(--line);border-radius:17px;padding:25px;box-shadow:0 25px 70px rgba(0,0,0,.45)}.modal-box h2{font-family:"Space Grotesk";margin-bottom:20px}.form-group{margin-bottom:14px}.form-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.form-group input,.form-group select{width:100%;background:#17160f;color:var(--cream);border:1px solid var(--line);padding:11px;border-radius:8px;outline:none}.form-group input:focus,.form-group select:focus{border-color:var(--green)}.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}.mobile-menu{display:none}
+@media(max-width:1000px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}main{margin-left:0;width:100%;padding:22px}.mobile-menu{display:block;background:var(--panel);color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:18px}.stats{grid-template-columns:repeat(2,1fr)}.content-grid,.lower-grid{grid-template-columns:1fr}}
+@media(max-width:560px){main{padding:16px}.topbar{align-items:flex-start}.weather{display:none}h1{font-size:29px}.hero{padding:23px}.hero h2{font-size:25px}.stats{gap:8px}.stat-card{padding:14px}.stat-number{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+<div class="logo"><div class="logo-mark">R</div><div><h2>ROBNEY FARM</h2><span>Farm Manager</span></div></div>
+<div class="nav-title">Workspace</div>
+<nav class="nav">
+<button class="active">⌂ <span>Overview</span></button><button>🐔 <span>Livestock</span></button><button>🌱 <span>Crops & Fields</span></button><button>💰 <span>Sales</span></button><button>↘ <span>Expenses</span></button><button>◷ <span>Tasks & Reminders</span></button><button>▥ <span>Reports</span></button>
+</nav>
+<div class="side-bottom"><div class="farm-status"><span class="status-dot"></span><small>Farm status: Active</small><p>Last sync: Today, 14:48</p></div></div>
+</aside>
+<main>
+<button class="mobile-menu" onclick="toggleSidebar()">☰ Menu</button>
+<header class="topbar"><div><div class="eyebrow">Tuesday · 06 October 2026</div><h1>Good afternoon, Robney.</h1><div class="date">Here's what's happening on your farm today.</div></div><div class="weather"><strong>27°C</strong><small>Dodoma · Partly cloudy</small></div></header>
+<section class="hero"><div class="eyebrow">Farm snapshot</div><h2>The farm doesn't stop. Neither should your records.</h2><p>Keep your animals, crops, money and daily operations in one place. Simple enough for the field.</p><div class="hero-actions"><button class="primary-btn" onclick="openModal()">+ Add record</button><button class="secondary-btn" onclick="showMessage()">View today's activity</button></div></section>
+<section class="stats">
+<div class="card stat-card"><div class="stat-label">Livestock</div><div class="stat-number">47</div><div class="stat-foot positive">↑ 6 this month</div></div>
+<div class="card stat-card"><div class="stat-label">Eggs today</div><div class="stat-number">31</div><div class="stat-foot">65.9% laying rate</div></div>
+<div class="card stat-card"><div class="stat-label">Sales · October</div><div class="stat-number">420K</div><div class="stat-foot positive">TZS ↑ 18.4%</div></div>
+<div class="card stat-card"><div class="stat-label">Net position</div><div class="stat-number">235K</div><div class="stat-foot positive">TZS estimated profit</div></div>
+</section>
+<section class="content-grid">
+<div class="section-card"><div class="section-head"><h3>Recent activity</h3><button class="view">View all →</button></div><div class="activity">
+<div class="activity-row"><div class="activity-icon">🥚</div><div class="activity-info"><strong>Egg collection</strong><span>Today · 08:15 · Poultry house A</span></div><div class="amount">+31 eggs</div></div>
+<div class="activity-row"><div class="activity-icon">🌾</div><div class="activity-info"><strong>Feed purchased</strong><span>Yesterday · Layer mash · 25 kg</span></div><div class="amount">−45,000</div></div>
+<div class="activity-row"><div class="activity-icon">🐔</div><div class="activity-info"><strong>New chickens added</strong><span>02 Oct · 6 birds · Local breed</span></div><div class="amount">+6 birds</div></div>
+<div class="activity-row"><div class="activity-icon">💵</div><div class="activity-info"><strong>Eggs sold</strong><span>01 Oct · Customer: M. John</span></div><div class="amount">+72,000</div></div>
+</div></div>
+<div class="section-card"><div class="section-head"><h3>Farm health</h3><span style="font-size:10px;color:#8fae45;">LIVE</span></div><div class="health">
+<div class="health-item"><label>Livestock</label><div class="progress"><span style="width:91%"></span></div><b>91%</b></div>
+<div class="health-item"><label>Feed stock</label><div class="progress"><span style="width:64%"></span></div><b>64%</b></div>
+<div class="health-item"><label>Egg output</label><div class="progress"><span style="width:76%"></span></div><b>76%</b></div>
+<div class="health-item"><label>Tasks</label><div class="progress"><span style="width:82%"></span></div><b>82%</b></div>
+</div></div>
+</section>
+<section class="lower-grid">
+<div class="section-card mini-card"><div class="mini-top"><div><div class="stat-label">Chickens</div><div class="mini-value">47</div></div><div class="mini-icon">🐔</div></div><div class="mini-label">42 healthy · 3 young · 2 under observation</div></div>
+<div class="section-card mini-card"><div class="mini-top"><div><div class="stat-label">Fields</div><div class="mini-value">3</div></div><div class="mini-icon">🌱</div></div><div class="mini-label">Maize · Vegetables · Pasture</div></div>
+<div class="section-card mini-card"><div class="mini-top"><div><div class="stat-label">Next task</div><div class="mini-value">Vaccine</div></div><div class="mini-icon">💉</div></div><div class="mini-label">Newcastle vaccine · 12 October</div></div>
+</section>
+</main></div>
+<div class="modal" id="modal"><div class="modal-box"><h2>Add farm record</h2><div class="form-group"><label>Record type</label><select id="recordType"><option>Livestock</option><option>Egg collection</option><option>Crop activity</option><option>Sale</option><option>Expense</option><option>Task</option></select></div><div class="form-group"><label>Description</label><input id="description" type="text" placeholder="e.g. Bought 10 chickens"></div><div class="form-group"><label>Quantity / Amount</label><input id="amount" type="number" placeholder="e.g. 10"></div><div class="modal-actions"><button class="secondary-btn" onclick="closeModal()">Cancel</button><button class="primary-btn" onclick="saveRecord()">Save record</button></div></div></div>
+<script>
+function openModal(){document.getElementById("modal").classList.add("open")}
+function closeModal(){document.getElementById("modal").classList.remove("open")}
+function saveRecord(){const type=document.getElementById("recordType").value,description=document.getElementById("description").value,amount=document.getElementById("amount").value;if(!description||!amount){alert("Please complete all fields.");return}alert("Record saved!\n\nType: "+type+"\nDescription: "+description+"\nAmount: "+amount);document.getElementById("description").value="";document.getElementById("amount").value="";closeModal()}
+function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open")}
+function showMessage(){alert("Today's activity\n\n🥚 31 eggs collected\n🐔 47 chickens recorded\n💰 TZS 72,000 sales\n🌾 Feed stock: 64%")}
+document.getElementById("modal").addEventListener("click",function(e){if(e.target===this)closeModal()});
+</script>
+</body>
+</html>
