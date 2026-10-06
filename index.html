@@ -3,194 +3,2744 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ROBNEY FARM — Farm Manager</title>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-:root{--soil:#171510;--panel:#26231b;--green:#8fae45;--cream:#eee7d5;--muted:#aaa38f;--line:rgba(238,231,213,.09)}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:"DM Sans",sans-serif;background:radial-gradient(circle at 80% 10%,rgba(143,174,69,.1),transparent 25%),radial-gradient(circle at 10% 90%,rgba(215,169,66,.06),transparent 25%),var(--soil);color:var(--cream);min-height:100vh}button{font-family:inherit;cursor:pointer}
-.app{display:flex;min-height:100vh}.sidebar{width:245px;border-right:1px solid var(--line);padding:28px 18px;background:rgba(23,21,16,.92);position:fixed;top:0;bottom:0;left:0;z-index:20}.logo{display:flex;align-items:center;gap:11px;padding:0 10px;margin-bottom:45px}.logo-mark{width:38px;height:38px;background:var(--green);color:#171510;display:grid;place-items:center;border-radius:12px 4px 12px 4px;font-size:19px;font-weight:700}.logo h2{font-family:"Space Grotesk";font-size:17px}.logo span{display:block;color:var(--muted);font-size:10px;margin-top:2px;letter-spacing:1px;text-transform:uppercase}.nav-title{font-size:10px;color:#6f6a5b;letter-spacing:1.5px;text-transform:uppercase;margin:0 10px 10px}.nav{display:flex;flex-direction:column;gap:5px}.nav button{background:transparent;border:0;color:#aaa38f;text-align:left;padding:12px 13px;border-radius:9px;display:flex;gap:12px;align-items:center;font-size:13px;transition:.2s}.nav button:hover,.nav button.active{background:var(--panel);color:var(--cream)}.nav button.active{border-left:3px solid var(--green)}.side-bottom{position:absolute;bottom:25px;left:18px;right:18px}.farm-status{border:1px solid var(--line);padding:14px;border-radius:12px;background:rgba(255,255,255,.025)}.status-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:6px;box-shadow:0 0 8px rgba(143,174,69,.8)}.farm-status p{font-size:11px;color:var(--muted);margin-top:6px}
-main{margin-left:245px;width:calc(100% - 245px);padding:30px 38px}.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:35px}.eyebrow{color:var(--green);text-transform:uppercase;font-size:10px;letter-spacing:2px;font-weight:700;margin-bottom:7px}h1{font-family:"Space Grotesk";font-size:clamp(27px,3vw,42px);letter-spacing:-1.8px;line-height:1}.date{margin-top:8px;color:var(--muted);font-size:12px}.weather{border:1px solid var(--line);background:var(--panel);padding:12px 17px;border-radius:12px;text-align:right}.weather strong{font-size:21px}.weather small{display:block;color:var(--muted);margin-top:3px}
-.hero{min-height:225px;position:relative;overflow:hidden;border-radius:19px;background:linear-gradient(90deg,rgba(21,19,14,.96),rgba(21,19,14,.65)),linear-gradient(135deg,#526b31,#181a12);border:1px solid var(--line);padding:31px;margin-bottom:20px}.hero:after{content:"";position:absolute;right:-80px;bottom:-100px;width:430px;height:230px;background:repeating-linear-gradient(-18deg,transparent 0,transparent 13px,rgba(143,174,69,.18) 14px,transparent 16px);transform:rotate(-4deg)}.hero h2,.hero p,.hero-actions{position:relative;z-index:2}.hero h2{font-family:"Space Grotesk";max-width:470px;font-size:30px;line-height:1.05;letter-spacing:-1px}.hero p{max-width:430px;margin-top:12px;color:#c0b9a6;font-size:13px;line-height:1.6}.hero-actions{display:flex;gap:9px;margin-top:21px}.primary-btn,.secondary-btn{border:0;border-radius:8px;padding:10px 15px;font-size:12px;font-weight:700}.primary-btn{background:var(--green);color:#16160f}.secondary-btn{background:rgba(255,255,255,.07);color:var(--cream);border:1px solid var(--line)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}.stat-card{position:relative;overflow:hidden}.stat-card:before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:var(--green)}.stat-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.stat-number{font-family:"Space Grotesk";font-size:28px;margin:8px 0 5px}.stat-foot{font-size:11px;color:#8c8778}.positive{color:var(--green)!important}
-.content-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:15px}.section-card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:21px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.section-head h3{font-family:"Space Grotesk";font-size:16px}.view{color:var(--green);border:0;background:transparent;font-size:11px}.activity{display:flex;flex-direction:column}.activity-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.activity-row:last-child{border-bottom:0}.activity-icon{width:35px;height:35px;border-radius:9px;display:grid;place-items:center;background:#343025;font-size:15px}.activity-info{flex:1}.activity-info strong{display:block;font-size:12px}.activity-info span{display:block;color:var(--muted);font-size:10px;margin-top:3px}.amount{font-size:12px;font-weight:700}
-.health{display:flex;flex-direction:column;gap:18px}.health-item{display:grid;grid-template-columns:75px 1fr 40px;gap:10px;align-items:center}.health-item label{font-size:11px;color:var(--muted)}.progress{height:6px;background:#181711;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:var(--green);border-radius:20px}.health-item b{font-size:11px;text-align:right}
-.lower-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-top:15px}.mini-card{min-height:145px}.mini-top{display:flex;justify-content:space-between}.mini-icon{font-size:22px}.mini-value{font-family:"Space Grotesk";font-size:25px;margin-top:15px}.mini-label{color:var(--muted);font-size:11px}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;place-items:center;padding:20px}.modal.open{display:grid}.modal-box{width:min(430px,100%);background:#252219;border:1px solid var(--line);border-radius:17px;padding:25px;box-shadow:0 25px 70px rgba(0,0,0,.45)}.modal-box h2{font-family:"Space Grotesk";margin-bottom:20px}.form-group{margin-bottom:14px}.form-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.form-group input,.form-group select{width:100%;background:#17160f;color:var(--cream);border:1px solid var(--line);padding:11px;border-radius:8px;outline:none}.form-group input:focus,.form-group select:focus{border-color:var(--green)}.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}.mobile-menu{display:none}
-@media(max-width:1000px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}main{margin-left:0;width:100%;padding:22px}.mobile-menu{display:block;background:var(--panel);color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:18px}.stats{grid-template-columns:repeat(2,1fr)}.content-grid,.lower-grid{grid-template-columns:1fr}}
-@media(max-width:560px){main{padding:16px}.topbar{align-items:flex-start}.weather{display:none}h1{font-size:29px}.hero{padding:23px}.hero h2{font-size:25px}.stats{gap:8px}.stat-card{padding:14px}.stat-number{font-size:23px}}
+
+:root{
+    --soil:#171510;
+    --soil2:#1d1a14;
+    --panel:#26231b;
+    --panel2:#302c22;
+    --green:#8fae45;
+    --green2:#637d2f;
+    --cream:#eee7d5;
+    --muted:#aaa38f;
+    --yellow:#d7a942;
+    --red:#b65d48;
+    --line:rgba(238,231,213,.09);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:"DM Sans",sans-serif;
+    background:
+        radial-gradient(circle at 80% 10%,rgba(143,174,69,.10),transparent 25%),
+        radial-gradient(circle at 10% 90%,rgba(215,169,66,.06),transparent 25%),
+        var(--soil);
+    color:var(--cream);
+    min-height:100vh;
+}
+
+button,
+input,
+select{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:245px;
+    border-right:1px solid var(--line);
+    padding:28px 18px;
+    background:rgba(23,21,16,.96);
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    z-index:20;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:0 10px;
+    margin-bottom:45px;
+}
+
+.logo-mark{
+    width:38px;
+    height:38px;
+    background:var(--green);
+    color:#171510;
+    display:grid;
+    place-items:center;
+    border-radius:12px 4px 12px 4px;
+    font-size:19px;
+    font-weight:700;
+}
+
+.logo h2{
+    font-family:"Space Grotesk";
+    font-size:17px;
+}
+
+.logo span{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    margin-top:2px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+.nav-title{
+    font-size:10px;
+    color:#6f6a5b;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin:0 10px 10px;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.nav button{
+    background:transparent;
+    border:0;
+    color:#aaa38f;
+    text-align:left;
+    padding:12px 13px;
+    border-radius:9px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    font-size:13px;
+    transition:.2s;
+}
+
+.nav button:hover,
+.nav button.active{
+    background:var(--panel);
+    color:var(--cream);
+}
+
+.nav button.active{
+    border-left:3px solid var(--green);
+}
+
+.side-bottom{
+    position:absolute;
+    bottom:25px;
+    left:18px;
+    right:18px;
+}
+
+.farm-status{
+    border:1px solid var(--line);
+    padding:14px;
+    border-radius:12px;
+    background:rgba(255,255,255,.025);
+}
+
+.status-dot{
+    display:inline-block;
+    width:7px;
+    height:7px;
+    background:var(--green);
+    border-radius:50%;
+    margin-right:6px;
+    box-shadow:0 0 8px rgba(143,174,69,.8);
+}
+
+.farm-status p{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:6px;
+}
+
+/* MAIN */
+
+main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    padding:30px 38px;
+}
+
+.mobile-menu{
+    display:none;
+}
+
+/* HEADER */
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:35px;
+}
+
+.eyebrow{
+    color:var(--green);
+    text-transform:uppercase;
+    font-size:10px;
+    letter-spacing:2px;
+    font-weight:700;
+    margin-bottom:7px;
+}
+
+h1{
+    font-family:"Space Grotesk";
+    font-size:clamp(27px,3vw,42px);
+    letter-spacing:-1.8px;
+    line-height:1;
+}
+
+.date{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.weather{
+    border:1px solid var(--line);
+    background:var(--panel);
+    padding:12px 17px;
+    border-radius:12px;
+    text-align:right;
+}
+
+.weather strong{
+    font-size:21px;
+}
+
+.weather small{
+    display:block;
+    color:var(--muted);
+    margin-top:3px;
+}
+
+/* PAGES */
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+/* DASHBOARD */
+
+.hero{
+    min-height:225px;
+    position:relative;
+    overflow:hidden;
+    border-radius:19px;
+    background:
+        linear-gradient(90deg,rgba(21,19,14,.96),rgba(21,19,14,.65)),
+        linear-gradient(135deg,#526b31,#181a12);
+    border:1px solid var(--line);
+    padding:31px;
+    margin-bottom:20px;
+}
+
+.hero:after{
+    content:"";
+    position:absolute;
+    right:-80px;
+    bottom:-100px;
+    width:430px;
+    height:230px;
+    background:
+        repeating-linear-gradient(
+            -18deg,
+            transparent 0,
+            transparent 13px,
+            rgba(143,174,69,.18) 14px,
+            transparent 16px
+        );
+    transform:rotate(-4deg);
+}
+
+.hero h2,
+.hero p,
+.hero-actions{
+    position:relative;
+    z-index:2;
+}
+
+.hero h2{
+    font-family:"Space Grotesk";
+    max-width:470px;
+    font-size:30px;
+    line-height:1.05;
+    letter-spacing:-1px;
+}
+
+.hero p{
+    max-width:430px;
+    margin-top:12px;
+    color:#c0b9a6;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.hero-actions{
+    display:flex;
+    gap:9px;
+    margin-top:21px;
+}
+
+.primary-btn,
+.secondary-btn{
+    border:0;
+    border-radius:8px;
+    padding:10px 15px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.primary-btn{
+    background:var(--green);
+    color:#16160f;
+}
+
+.secondary-btn{
+    background:rgba(255,255,255,.07);
+    color:var(--cream);
+    border:1px solid var(--line);
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px;
+}
+
+.stat-card{
+    position:relative;
+    overflow:hidden;
+}
+
+.stat-card:before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:4px;
+    height:100%;
+    background:var(--green);
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+}
+
+.stat-number{
+    font-family:"Space Grotesk";
+    font-size:28px;
+    margin:8px 0 5px;
+}
+
+.stat-foot{
+    font-size:11px;
+    color:#8c8778;
+}
+
+.positive{
+    color:var(--green)!important;
+}
+
+.content-grid{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:15px;
+}
+
+.section-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:15px;
+    padding:21px;
+}
+
+.section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.section-head h3{
+    font-family:"Space Grotesk";
+    font-size:16px;
+}
+
+.activity-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+}
+
+.activity-row:last-child{
+    border-bottom:0;
+}
+
+.activity-icon{
+    width:35px;
+    height:35px;
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    background:#343025;
+    font-size:15px;
+}
+
+.activity-info{
+    flex:1;
+}
+
+.activity-info strong{
+    display:block;
+    font-size:12px;
+}
+
+.activity-info span{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    margin-top:3px;
+}
+
+.amount{
+    font-size:12px;
+    font-weight:700;
+}
+
+.health{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.health-item{
+    display:grid;
+    grid-template-columns:75px 1fr 40px;
+    gap:10px;
+    align-items:center;
+}
+
+.health-item label{
+    font-size:11px;
+    color:var(--muted);
+}
+
+.progress{
+    height:6px;
+    background:#181711;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.progress span{
+    display:block;
+    height:100%;
+    background:var(--green);
+    border-radius:20px;
+}
+
+.health-item b{
+    font-size:11px;
+    text-align:right;
+}
+
+/* LOWER */
+
+.lower-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-top:15px;
+}
+
+.mini-card{
+    min-height:145px;
+}
+
+.mini-top{
+    display:flex;
+    justify-content:space-between;
+}
+
+.mini-icon{
+    font-size:22px;
+}
+
+.mini-value{
+    font-family:"Space Grotesk";
+    font-size:25px;
+    margin-top:15px;
+}
+
+.mini-label{
+    color:var(--muted);
+    font-size:11px;
+}
+
+/* LIVESTOCK */
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:25px;
+}
+
+.page-header h2{
+    font-family:"Space Grotesk";
+    font-size:30px;
+    letter-spacing:-1px;
+}
+
+.page-header p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:7px;
+}
+
+.livestock-summary{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.summary-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:17px;
+}
+
+.summary-box small{
+    color:var(--muted);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.summary-box strong{
+    display:block;
+    font-family:"Space Grotesk";
+    font-size:25px;
+    margin-top:8px;
+}
+
+.toolbar{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.search{
+    flex:1;
+    max-width:400px;
+}
+
+.search input,
+.filter select{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--cream);
+    padding:12px 13px;
+    border-radius:9px;
+    outline:none;
+}
+
+.search input:focus,
+.filter select:focus{
+    border-color:var(--green);
+}
+
+.livestock-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.livestock-table th{
+    color:#777162;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    text-align:left;
+    padding:12px;
+    border-bottom:1px solid var(--line);
+}
+
+.livestock-table td{
+    padding:14px 12px;
+    border-bottom:1px solid var(--line);
+    font-size:12px;
+}
+
+.animal-name{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.animal-icon{
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border-radius:9px;
+    background:#343025;
+    font-size:18px;
+}
+
+.animal-name strong{
+    display:block;
+}
+
+.animal-name span{
+    color:var(--muted);
+    font-size:10px;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 8px;
+    border-radius:20px;
+    font-size:9px;
+    font-weight:700;
+}
+
+.healthy{
+    color:#b6d675;
+    background:rgba(143,174,69,.12);
+}
+
+.observation{
+    color:#e0bd66;
+    background:rgba(215,169,66,.12);
+}
+
+.sick{
+    color:#dc8977;
+    background:rgba(182,93,72,.12);
+}
+
+.vaccinated{
+    color:#a9c96c;
+}
+
+.not-vaccinated{
+    color:#d19a88;
+}
+
+.delete-btn{
+    background:transparent;
+    border:1px solid var(--line);
+    color:#9f8f83;
+    padding:6px 8px;
+    border-radius:6px;
+    font-size:10px;
+}
+
+.delete-btn:hover{
+    color:#e08a76;
+    border-color:#8a5044;
+}
+
+.empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--muted);
+}
+
+.empty div{
+    font-size:35px;
+    margin-bottom:10px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    z-index:100;
+    place-items:center;
+    padding:20px;
+}
+
+.modal.open{
+    display:grid;
+}
+
+.modal-box{
+    width:min(500px,100%);
+    max-height:90vh;
+    overflow:auto;
+    background:#252219;
+    border:1px solid var(--line);
+    border-radius:17px;
+    padding:25px;
+    box-shadow:0 25px 70px rgba(0,0,0,.5);
+}
+
+.modal-box h2{
+    font-family:"Space Grotesk";
+    margin-bottom:20px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.form-group{
+    margin-bottom:13px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+.form-group label{
+    display:block;
+    font-size:10px;
+    color:var(--muted);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    background:#17160f;
+    color:var(--cream);
+    border:1px solid var(--line);
+    padding:11px;
+    border-radius:8px;
+    outline:none;
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:var(--green);
+}
+
+.modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:15px;
+}
+
+/* MOBILE */
+
+@media(max-width:1000px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    main{
+        margin-left:0;
+        width:100%;
+        padding:22px;
+    }
+
+    .mobile-menu{
+        display:block;
+        background:var(--panel);
+        color:var(--cream);
+        border:1px solid var(--line);
+        border-radius:8px;
+        padding:9px 11px;
+        margin-bottom:18px;
+    }
+
+    .stats,
+    .livestock-summary{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .content-grid,
+    .lower-grid{
+        grid-template-columns:1fr;
+    }
+
+    .livestock-table{
+        min-width:750px;
+    }
+
+    .table-wrapper{
+        overflow-x:auto;
+    }
+}
+
+@media(max-width:560px){
+
+    main{
+        padding:16px;
+    }
+
+    .topbar{
+        align-items:flex-start;
+    }
+
+    .weather{
+        display:none;
+    }
+
+    h1{
+        font-size:29px;
+    }
+
+    .hero{
+        padding:23px;
+    }
+
+    .hero h2{
+        font-size:25px;
+    }
+
+    .stats,
+    .livestock-summary{
+        gap:8px;
+    }
+
+    .stat-card,
+    .summary-box{
+        padding:14px;
+    }
+
+    .stat-number{
+        font-size:23px;
+    }
+
+    .page-header{
+        align-items:flex-start;
+    }
+
+    .page-header h2{
+        font-size:25px;
+    }
+
+    .toolbar{
+        flex-direction:column;
+    }
+
+    .search{
+        max-width:none;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+}
 </style>
 </head>
+
 <body>
+
 <div class="app">
+
+<!-- SIDEBAR -->
+
 <aside class="sidebar" id="sidebar">
-<div class="logo"><div class="logo-mark">R</div><div><h2>ROBNEY FARM</h2><span>Farm Manager</span></div></div>
-<div class="nav-title">Workspace</div>
-<nav class="nav">
-<button class="active">⌂ <span>Overview</span></button><button>🐔 <span>Livestock</span></button><button>🌱 <span>Crops & Fields</span></button><button>💰 <span>Sales</span></button><button>↘ <span>Expenses</span></button><button>◷ <span>Tasks & Reminders</span></button><button>▥ <span>Reports</span></button>
-</nav>
-<div class="side-bottom"><div class="farm-status"><span class="status-dot"></span><small>Farm status: Active</small><p>Last sync: Today, 14:48</p></div></div>
+
+    <div class="logo">
+        <div class="logo-mark">R</div>
+
+        <div>
+            <h2>ROBNEY FARM</h2>
+            <span>Farm Manager</span>
+        </div>
+    </div>
+
+    <div class="nav-title">Workspace</div>
+
+    <nav class="nav">
+
+        <button class="active"
+                data-page="dashboard"
+                onclick="navigate('dashboard',this)">
+            ⌂ <span>Overview</span>
+        </button>
+
+        <button
+                data-page="livestock"
+                onclick="navigate('livestock',this)">
+            🐔 <span>Livestock</span>
+        </button>
+
+        <button>
+            🌱 <span>Crops & Fields</span>
+        </button>
+
+        <button>
+            💰 <span>Sales</span>
+        </button>
+
+        <button>
+            ↘ <span>Expenses</span>
+        </button>
+
+        <button>
+            ◷ <span>Tasks & Reminders</span>
+        </button>
+
+        <button>
+            ▥ <span>Reports</span>
+        </button>
+
+    </nav>
+
+    <div class="side-bottom">
+
+        <div class="farm-status">
+
+            <span class="status-dot"></span>
+
+            <small>Farm status: Active</small>
+
+            <p>
+                Data stored locally
+            </p>
+
+        </div>
+
+    </div>
+
 </aside>
+
+
+<!-- MAIN -->
+
 <main>
-<button class="mobile-menu" onclick="toggleSidebar()">☰ Menu</button>
-<header class="topbar"><div><div class="eyebrow">Tuesday · 06 October 2026</div><h1>Good afternoon, Robney.</h1><div class="date">Here's what's happening on your farm today.</div></div><div class="weather"><strong>27°C</strong><small>Dodoma · Partly cloudy</small></div></header>
-<section class="hero"><div class="eyebrow">Farm snapshot</div><h2>The farm doesn't stop. Neither should your records.</h2><p>Keep your animals, crops, money and daily operations in one place. Simple enough for the field.</p><div class="hero-actions"><button class="primary-btn" onclick="openModal()">+ Add record</button><button class="secondary-btn" onclick="showMessage()">View today's activity</button></div></section>
+
+<button class="mobile-menu"
+        onclick="toggleSidebar()">
+    ☰ Menu
+</button>
+
+
+<!-- DASHBOARD PAGE -->
+
+<section class="page active"
+         id="dashboardPage">
+
+<header class="topbar">
+
+    <div>
+
+        <div class="eyebrow">
+            Tuesday · 06 October 2026
+        </div>
+
+        <h1>
+            Good afternoon, Robney.
+        </h1>
+
+        <div class="date">
+            Here's what's happening on your farm today.
+        </div>
+
+    </div>
+
+    <div class="weather">
+
+        <strong>27°C</strong>
+
+        <small>
+            Dodoma · Partly cloudy
+        </small>
+
+    </div>
+
+</header>
+
+
+<section class="hero">
+
+    <div class="eyebrow">
+        Farm snapshot
+    </div>
+
+    <h2>
+        The farm doesn't stop.
+        Neither should your records.
+    </h2>
+
+    <p>
+        Keep your animals, crops, money and
+        daily operations in one place.
+        Simple enough for the field.
+    </p>
+
+    <div class="hero-actions">
+
+        <button class="primary-btn"
+                onclick="openRecordModal()">
+            + Add record
+        </button>
+
+        <button class="secondary-btn"
+                onclick="showToday()">
+            View today's activity
+        </button>
+
+    </div>
+
+</section>
+
+
 <section class="stats">
-<div class="card stat-card"><div class="stat-label">Livestock</div><div class="stat-number" id="livestockCount">47</div><div class="stat-foot positive">↑ 6 this month</div></div>
-<div class="card stat-card"><div class="stat-label">Eggs today</div><div class="stat-number" id="eggsToday">31</div><div class="stat-foot">65.9% laying rate</div></div>
-<div class="card stat-card"><div class="stat-label">Sales · October</div><div class="stat-number" id="salesTotal">420K</div><div class="stat-foot positive">TZS ↑ 18.4%</div></div>
-<div class="card stat-card"><div class="stat-label">Net position</div><div class="stat-number" id="profitTotal">235K</div><div class="stat-foot positive">TZS estimated profit</div></div>
+
+<div class="card stat-card">
+
+    <div class="stat-label">
+        Livestock
+    </div>
+
+    <div class="stat-number"
+         id="livestockCount">
+        0
+    </div>
+
+    <div class="stat-foot positive">
+        Active animals
+    </div>
+
+</div>
+
+
+<div class="card stat-card">
+
+    <div class="stat-label">
+        Eggs today
+    </div>
+
+    <div class="stat-number"
+         id="eggsToday">
+        0
+    </div>
+
+    <div class="stat-foot">
+        Collection total
+    </div>
+
+</div>
+
+
+<div class="card stat-card">
+
+    <div class="stat-label">
+        Sales · October
+    </div>
+
+    <div class="stat-number"
+         id="salesTotal">
+        0
+    </div>
+
+    <div class="stat-foot positive">
+        TZS revenue
+    </div>
+
+</div>
+
+
+<div class="card stat-card">
+
+    <div class="stat-label">
+        Net position
+    </div>
+
+    <div class="stat-number"
+         id="profitTotal">
+        0
+    </div>
+
+    <div class="stat-foot positive">
+        TZS estimated profit
+    </div>
+
+</div>
+
 </section>
+
+
 <section class="content-grid">
-<div class="section-card"><div class="section-head"><h3>Recent activity</h3><button class="view">View all →</button></div><div class="activity" id="activityList"></div></div>
-<div class="activity-row"><div class="activity-icon">🌾</div><div class="activity-info"><strong>Feed purchased</strong><span>Yesterday · Layer mash · 25 kg</span></div><div class="amount">−45,000</div></div>
-<div class="activity-row"><div class="activity-icon">🐔</div><div class="activity-info"><strong>New chickens added</strong><span>02 Oct · 6 birds · Local breed</span></div><div class="amount">+6 birds</div></div>
-<div class="activity-row"><div class="activity-icon">💵</div><div class="activity-info"><strong>Eggs sold</strong><span>01 Oct · Customer: M. John</span></div><div class="amount">+72,000</div></div>
-</div></div>
-<div class="section-card"><div class="section-head"><h3>Farm health</h3><span style="font-size:10px;color:#8fae45;">LIVE</span></div><div class="health">
-<div class="health-item"><label>Livestock</label><div class="progress"><span style="width:91%"></span></div><b>91%</b></div>
-<div class="health-item"><label>Feed stock</label><div class="progress"><span style="width:64%"></span></div><b>64%</b></div>
-<div class="health-item"><label>Egg output</label><div class="progress"><span style="width:76%"></span></div><b>76%</b></div>
-<div class="health-item"><label>Tasks</label><div class="progress"><span style="width:82%"></span></div><b>82%</b></div>
-</div></div>
+
+<div class="section-card">
+
+    <div class="section-head">
+
+        <h3>
+            Recent activity
+        </h3>
+
+    </div>
+
+    <div id="activityList"></div>
+
+</div>
+
+
+<div class="section-card">
+
+    <div class="section-head">
+
+        <h3>
+            Farm health
+        </h3>
+
+        <span style="font-size:10px;color:#8fae45;">
+            LIVE
+        </span>
+
+    </div>
+
+    <div class="health">
+
+        <div class="health-item">
+
+            <label>
+                Livestock
+            </label>
+
+            <div class="progress">
+                <span style="width:91%"></span>
+            </div>
+
+            <b>91%</b>
+
+        </div>
+
+
+        <div class="health-item">
+
+            <label>
+                Feed stock
+            </label>
+
+            <div class="progress">
+                <span style="width:64%"></span>
+            </div>
+
+            <b>64%</b>
+
+        </div>
+
+
+        <div class="health-item">
+
+            <label>
+                Egg output
+            </label>
+
+            <div class="progress">
+                <span style="width:76%"></span>
+            </div>
+
+            <b>76%</b>
+
+        </div>
+
+
+        <div class="health-item">
+
+            <label>
+                Tasks
+            </label>
+
+            <div class="progress">
+                <span style="width:82%"></span>
+            </div>
+
+            <b>82%</b>
+
+        </div>
+
+    </div>
+
+</div>
+
 </section>
+
+
 <section class="lower-grid">
-<div class="section-card mini-card"><div class="mini-top"><div><div class="stat-label">Chickens</div><div class="mini-value">47</div></div><div class="mini-icon">🐔</div></div><div class="mini-label">42 healthy · 3 young · 2 under observation</div></div>
-<div class="section-card mini-card"><div class="mini-top"><div><div class="stat-label">Fields</div><div class="mini-value">3</div></div><div class="mini-icon">🌱</div></div><div class="mini-label">Maize · Vegetables · Pasture</div></div>
-<div class="section-card mini-card"><div class="mini-top"><div><div class="stat-label">Next task</div><div class="mini-value">Vaccine</div></div><div class="mini-icon">💉</div></div><div class="mini-label">Newcastle vaccine · 12 October</div></div>
+
+<div class="section-card mini-card">
+
+    <div class="mini-top">
+
+        <div>
+
+            <div class="stat-label">
+                Chickens
+            </div>
+
+            <div class="mini-value"
+                 id="chickenCount">
+                0
+            </div>
+
+        </div>
+
+        <div class="mini-icon">
+            🐔
+        </div>
+
+    </div>
+
+    <div class="mini-label">
+        Recorded chickens
+    </div>
+
+</div>
+
+
+<div class="section-card mini-card">
+
+    <div class="mini-top">
+
+        <div>
+
+            <div class="stat-label">
+                Animals
+            </div>
+
+            <div class="mini-value"
+                 id="animalTypes">
+                0
+            </div>
+
+        </div>
+
+        <div class="mini-icon">
+            🐄
+        </div>
+
+    </div>
+
+    <div class="mini-label">
+        Different animal types
+    </div>
+
+</div>
+
+
+<div class="section-card mini-card">
+
+    <div class="mini-top">
+
+        <div>
+
+            <div class="stat-label">
+                Vaccinations
+            </div>
+
+            <div class="mini-value"
+                 id="vaccinationRate">
+                0%
+            </div>
+
+        </div>
+
+        <div class="mini-icon">
+            💉
+        </div>
+
+    </div>
+
+    <div class="mini-label">
+        Animals vaccinated
+    </div>
+
+</div>
+
 </section>
-</main></div>
-<div class="modal" id="modal"><div class="modal-box"><h2>Add farm record</h2><div class="form-group"><label>Record type</label><select id="recordType"><option>Livestock</option><option>Egg collection</option><option>Crop activity</option><option>Sale</option><option>Expense</option><option>Task</option></select></div><div class="form-group"><label>Description</label><input id="description" type="text" placeholder="e.g. Bought 10 chickens"></div><div class="form-group"><label>Quantity / Amount</label><input id="amount" type="number" placeholder="e.g. 10"></div><div class="modal-actions"><button class="secondary-btn" onclick="closeModal()">Cancel</button><button class="primary-btn" onclick="saveRecord()">Save record</button></div></div></div>
+
+</section>
+
+
+<!-- LIVESTOCK PAGE -->
+
+<section class="page"
+         id="livestockPage">
+
+<div class="page-header">
+
+    <div>
+
+        <div class="eyebrow">
+            Livestock management
+        </div>
+
+        <h2>
+            Your animals
+        </h2>
+
+        <p>
+            Track individual animals, health,
+            age and vaccination records.
+        </p>
+
+    </div>
+
+    <button class="primary-btn"
+            onclick="openAnimalModal()">
+        + Add animal
+    </button>
+
+</div>
+
+
+<div class="livestock-summary">
+
+<div class="summary-box">
+
+    <small>
+        Total animals
+    </small>
+
+    <strong id="totalAnimals">
+        0
+    </strong>
+
+</div>
+
+
+<div class="summary-box">
+
+    <small>
+        Healthy
+    </small>
+
+    <strong id="healthyAnimals">
+        0
+    </strong>
+
+</div>
+
+
+<div class="summary-box">
+
+    <small>
+        Under observation
+    </small>
+
+    <strong id="observationAnimals">
+        0
+    </strong>
+
+</div>
+
+
+<div class="summary-box">
+
+    <small>
+        Vaccinated
+    </small>
+
+    <strong id="vaccinatedAnimals">
+        0
+    </strong>
+
+</div>
+
+</div>
+
+
+<div class="toolbar">
+
+    <div class="search">
+
+        <input
+            id="animalSearch"
+            type="text"
+            placeholder="Search by name, ID or breed..."
+            oninput="renderAnimals()">
+
+    </div>
+
+
+    <div class="filter">
+
+        <select
+            id="animalFilter"
+            onchange="renderAnimals()">
+
+            <option value="all">
+                All animals
+            </option>
+
+            <option value="Chicken">
+                Chickens
+            </option>
+
+            <option value="Goat">
+                Goats
+            </option>
+
+            <option value="Cow">
+                Cows
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+
+<div class="section-card">
+
+<div class="table-wrapper">
+
+<table class="livestock-table">
+
+<thead>
+
+<tr>
+
+<th>
+Animal
+</th>
+
+<th>
+Breed
+</th>
+
+<th>
+Sex
+</th>
+
+<th>
+Age
+</th>
+
+<th>
+Health
+</th>
+
+<th>
+Vaccination
+</th>
+
+<th>
+Action
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="animalTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<!-- ADD RECORD MODAL -->
+
+<div class="modal"
+     id="recordModal">
+
+<div class="modal-box">
+
+<h2>
+Add farm record
+</h2>
+
+<div class="form-group">
+
+<label>
+Record type
+</label>
+
+<select id="recordType">
+
+<option>
+Egg collection
+</option>
+
+<option>
+Sale
+</option>
+
+<option>
+Expense
+</option>
+
+<option>
+Crop activity
+</option>
+
+<option>
+Task
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Description
+</label>
+
+<input
+    id="recordDescription"
+    type="text"
+    placeholder="e.g. Sold eggs">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Quantity / Amount
+</label>
+
+<input
+    id="recordAmount"
+    type="number"
+    placeholder="e.g. 20">
+
+</div>
+
+
+<div class="modal-actions">
+
+<button class="secondary-btn"
+        onclick="closeRecordModal()">
+    Cancel
+</button>
+
+<button class="primary-btn"
+        onclick="saveRecord()">
+    Save record
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ADD ANIMAL MODAL -->
+
+<div class="modal"
+     id="animalModal">
+
+<div class="modal-box">
+
+<h2>
+Register animal
+</h2>
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>
+Animal type
+</label>
+
+<select id="animalType">
+
+<option>
+Chicken
+</option>
+
+<option>
+Goat
+</option>
+
+<option>
+Cow
+</option>
+
+<option>
+Other
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Sex
+</label>
+
+<select id="animalSex">
+
+<option>
+Female
+</option>
+
+<option>
+Male
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Name / ID
+</label>
+
+<input
+    id="animalName"
+    type="text"
+    placeholder="e.g. CH-001">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Breed
+</label>
+
+<input
+    id="animalBreed"
+    type="text"
+    placeholder="e.g. Local">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Age
+</label>
+
+<input
+    id="animalAge"
+    type="text"
+    placeholder="e.g. 8 months">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Health status
+</label>
+
+<select id="animalHealth">
+
+<option>
+Healthy
+</option>
+
+<option>
+Observation
+</option>
+
+<option>
+Sick
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group full">
+
+<label>
+Vaccination
+</label>
+
+<select id="animalVaccination">
+
+<option>
+Vaccinated
+</option>
+
+<option>
+Not vaccinated
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="modal-actions">
+
+<button class="secondary-btn"
+        onclick="closeAnimalModal()">
+    Cancel
+</button>
+
+<button class="primary-btn"
+        onclick="saveAnimal()">
+    Register animal
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
 <script>
-const defaultData = {
-  livestock: 47,
-  eggs: 31,
-  sales: 420000,
-  expenses: 185000,
-  records: [
-    {icon:"🥚", title:"Egg collection", detail:"Today · 08:15 · Poultry house A", amount:"+31 eggs"},
-    {icon:"🌾", title:"Feed purchased", detail:"Yesterday · Layer mash · 25 kg", amount:"−45,000"},
-    {icon:"🐔", title:"New chickens added", detail:"02 Oct · 6 birds · Local breed", amount:"+6 birds"},
-    {icon:"💵", title:"Eggs sold", detail:"01 Oct · Customer: M. John", amount:"+72,000"}
-  ]
+
+/* =========================================
+   FARM DATA
+========================================= */
+
+const defaultFarm = {
+
+    animals: [],
+
+    eggs: 31,
+
+    sales: 420000,
+
+    expenses: 185000,
+
+    records: [
+
+        {
+            icon:"🥚",
+            title:"Egg collection",
+            detail:"Today · Poultry house A",
+            amount:"+31 eggs"
+        },
+
+        {
+            icon:"🌾",
+            title:"Feed purchased",
+            detail:"Yesterday · Layer mash",
+            amount:"−45,000"
+        },
+
+        {
+            icon:"💵",
+            title:"Eggs sold",
+            detail:"01 Oct · Customer: M. John",
+            amount:"+72,000"
+        }
+
+    ]
+
 };
 
-let farm = JSON.parse(localStorage.getItem("robneyFarmData")) || defaultData;
 
-function saveData(){
-  localStorage.setItem("robneyFarmData", JSON.stringify(farm));
+let farm =
+    JSON.parse(
+        localStorage.getItem("robneyFarm")
+    ) || defaultFarm;
+
+
+/* =========================================
+   STORAGE
+========================================= */
+
+function saveFarm(){
+
+    localStorage.setItem(
+        "robneyFarm",
+        JSON.stringify(farm)
+    );
+
 }
 
-function money(n){
-  return Number(n).toLocaleString("en-TZ");
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function navigate(page,button){
+
+    document
+        .querySelectorAll(".page")
+        .forEach(p =>
+            p.classList.remove("active")
+        );
+
+    document
+        .getElementById(page+"Page")
+        .classList.add("active");
+
+
+    document
+        .querySelectorAll(".nav button")
+        .forEach(b =>
+            b.classList.remove("active")
+        );
+
+    if(button){
+        button.classList.add("active");
+    }
+
+
+    if(page === "livestock"){
+
+        renderAnimals();
+
+    }
+
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("open");
+
 }
+
+
+/* =========================================
+   DASHBOARD
+========================================= */
 
 function renderDashboard(){
-  document.getElementById("livestockCount").textContent = farm.livestock;
-  document.getElementById("eggsToday").textContent = farm.eggs;
-  document.getElementById("salesTotal").textContent =
-    farm.sales >= 1000000 ? (farm.sales/1000000).toFixed(1)+"M" :
-    Math.round(farm.sales/1000)+"K";
 
-  const profit = farm.sales - farm.expenses;
-  document.getElementById("profitTotal").textContent =
-    profit >= 1000000 ? (profit/1000000).toFixed(1)+"M" :
-    Math.round(profit/1000)+"K";
+    const animals =
+        farm.animals.length;
 
-  const list = document.getElementById("activityList");
-  list.innerHTML = farm.records.slice(0,6).map(r => `
-    <div class="activity-row">
-      <div class="activity-icon">${r.icon}</div>
-      <div class="activity-info">
-        <strong>${escapeHTML(r.title)}</strong>
-        <span>${escapeHTML(r.detail)}</span>
-      </div>
-      <div class="amount">${escapeHTML(r.amount)}</div>
-    </div>
-  `).join("");
+
+    document
+        .getElementById("livestockCount")
+        .textContent = animals;
+
+
+    document
+        .getElementById("chickenCount")
+        .textContent =
+        farm.animals.filter(
+            a => a.type === "Chicken"
+        ).length;
+
+
+    const types =
+        new Set(
+            farm.animals.map(
+                a => a.type
+            )
+        );
+
+
+    document
+        .getElementById("animalTypes")
+        .textContent =
+        types.size;
+
+
+    const vaccinated =
+        farm.animals.filter(
+            a =>
+            a.vaccination === "Vaccinated"
+        ).length;
+
+
+    const rate =
+        animals ?
+        Math.round(
+            vaccinated / animals * 100
+        ) :
+        0;
+
+
+    document
+        .getElementById("vaccinationRate")
+        .textContent =
+        rate + "%";
+
+
+    document
+        .getElementById("eggsToday")
+        .textContent =
+        farm.eggs;
+
+
+    document
+        .getElementById("salesTotal")
+        .textContent =
+        formatMoneyShort(farm.sales);
+
+
+    document
+        .getElementById("profitTotal")
+        .textContent =
+        formatMoneyShort(
+            farm.sales - farm.expenses
+        );
+
+
+    renderActivity();
+
 }
 
-function escapeHTML(value){
-  return String(value).replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
+
+/* =========================================
+   ACTIVITY
+========================================= */
+
+function renderActivity(){
+
+    const box =
+        document.getElementById(
+            "activityList"
+        );
+
+
+    if(!farm.records.length){
+
+        box.innerHTML =
+        `<div class="empty">
+            <div>🌾</div>
+            No activity recorded yet.
+        </div>`;
+
+        return;
+
+    }
+
+
+    box.innerHTML =
+        farm.records
+        .slice(0,6)
+        .map(
+            record => `
+
+            <div class="activity-row">
+
+                <div class="activity-icon">
+                    ${record.icon}
+                </div>
+
+                <div class="activity-info">
+
+                    <strong>
+                        ${escapeHTML(record.title)}
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(record.detail)}
+                    </span>
+
+                </div>
+
+                <div class="amount">
+                    ${escapeHTML(record.amount)}
+                </div>
+
+            </div>
+
+            `
+        )
+        .join("");
+
 }
 
-function openModal(){document.getElementById("modal").classList.add("open")}
-function closeModal(){document.getElementById("modal").classList.remove("open")}
+
+/* =========================================
+   LIVESTOCK
+========================================= */
+
+function renderAnimals(){
+
+    const search =
+        document
+        .getElementById("animalSearch")
+        .value
+        .toLowerCase();
+
+
+    const filter =
+        document
+        .getElementById("animalFilter")
+        .value;
+
+
+    let animals =
+        farm.animals.filter(
+            animal => {
+
+                const matchesSearch =
+                    animal.name
+                    .toLowerCase()
+                    .includes(search)
+                    ||
+                    animal.breed
+                    .toLowerCase()
+                    .includes(search);
+
+
+                const matchesFilter =
+                    filter === "all"
+                    ||
+                    animal.type === filter;
+
+
+                return (
+                    matchesSearch &&
+                    matchesFilter
+                );
+
+            }
+        );
+
+
+    const table =
+        document.getElementById(
+            "animalTable"
+        );
+
+
+    if(!animals.length){
+
+        table.innerHTML = `
+
+        <tr>
+
+            <td colspan="7">
+
+                <div class="empty">
+
+                    <div>🐔</div>
+
+                    No animals found.
+
+                </div>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    }else{
+
+        table.innerHTML =
+        animals.map(
+            animal => `
+
+            <tr>
+
+                <td>
+
+                    <div class="animal-name">
+
+                        <div class="animal-icon">
+                            ${animalIcon(animal.type)}
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                ${escapeHTML(animal.name)}
+                            </strong>
+
+                            <span>
+                                ${animal.type}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+                    ${escapeHTML(animal.breed)}
+                </td>
+
+
+                <td>
+                    ${animal.sex}
+                </td>
+
+
+                <td>
+                    ${escapeHTML(animal.age)}
+                </td>
+
+
+                <td>
+
+                    <span class="badge
+                        ${healthClass(animal.health)}">
+
+                        ${animal.health}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="
+                        ${animal.vaccination === "Vaccinated"
+                        ? "vaccinated"
+                        : "not-vaccinated"}">
+
+                        ${animal.vaccination}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteAnimal('${animal.id}')">
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+            `
+        ).join("");
+
+    }
+
+
+    updateLivestockSummary();
+
+}
+
+
+function updateLivestockSummary(){
+
+    const total =
+        farm.animals.length;
+
+
+    const healthy =
+        farm.animals.filter(
+            a => a.health === "Healthy"
+        ).length;
+
+
+    const observation =
+        farm.animals.filter(
+            a => a.health === "Observation"
+        ).length;
+
+
+    const vaccinated =
+        farm.animals.filter(
+            a =>
+            a.vaccination === "Vaccinated"
+        ).length;
+
+
+    document
+        .getElementById("totalAnimals")
+        .textContent =
+        total;
+
+
+    document
+        .getElementById("healthyAnimals")
+        .textContent =
+        healthy;
+
+
+    document
+        .getElementById("observationAnimals")
+        .textContent =
+        observation;
+
+
+    document
+        .getElementById("vaccinatedAnimals")
+        .textContent =
+        vaccinated;
+
+}
+
+
+function saveAnimal(){
+
+    const type =
+        document
+        .getElementById("animalType")
+        .value;
+
+
+    const sex =
+        document
+        .getElementById("animalSex")
+        .value;
+
+
+    const name =
+        document
+        .getElementById("animalName")
+        .value
+        .trim();
+
+
+    const breed =
+        document
+        .getElementById("animalBreed")
+        .value
+        .trim();
+
+
+    const age =
+        document
+        .getElementById("animalAge")
+        .value
+        .trim();
+
+
+    const health =
+        document
+        .getElementById("animalHealth")
+        .value;
+
+
+    const vaccination =
+        document
+        .getElementById(
+            "animalVaccination"
+        )
+        .value;
+
+
+    if(
+        !name ||
+        !breed ||
+        !age
+    ){
+
+        alert(
+            "Please complete the animal information."
+        );
+
+        return;
+
+    }
+
+
+    const animal = {
+
+        id:
+            Date.now().toString(),
+
+        type,
+
+        sex,
+
+        name,
+
+        breed,
+
+        age,
+
+        health,
+
+        vaccination
+
+    };
+
+
+    farm.animals.unshift(
+        animal
+    );
+
+
+    farm.records.unshift({
+
+        icon:animalIcon(type),
+
+        title:
+            "New " +
+            type.toLowerCase() +
+            " registered",
+
+        detail:
+            name +
+            " · " +
+            breed,
+
+        amount:
+            "+1 animal"
+
+    });
+
+
+    saveFarm();
+
+    renderAnimals();
+
+    renderDashboard();
+
+    closeAnimalModal();
+
+    clearAnimalForm();
+
+}
+
+
+function deleteAnimal(id){
+
+    const animal =
+        farm.animals.find(
+            a => a.id === id
+        );
+
+
+    if(!animal) return;
+
+
+    const confirmDelete =
+        confirm(
+            "Remove " +
+            animal.name +
+            " from the farm records?"
+        );
+
+
+    if(!confirmDelete)
+        return;
+
+
+    farm.animals =
+        farm.animals.filter(
+            a => a.id !== id
+        );
+
+
+    saveFarm();
+
+    renderAnimals();
+
+    renderDashboard();
+
+}
+
+
+/* =========================================
+   RECORDS
+========================================= */
 
 function saveRecord(){
-  const type = document.getElementById("recordType").value;
-  const description = document.getElementById("description").value.trim();
-  const amount = Number(document.getElementById("amount").value);
 
-  if(!description || !amount || amount < 0){
-    alert("Please enter a description and a valid amount.");
-    return;
-  }
+    const type =
+        document
+        .getElementById("recordType")
+        .value;
 
-  const icons = {
-    "Livestock":"🐔",
-    "Egg collection":"🥚",
-    "Crop activity":"🌱",
-    "Sale":"💵",
-    "Expense":"🌾",
-    "Task":"◷"
-  };
 
-  let displayAmount = "";
-  const now = "Today · " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    const description =
+        document
+        .getElementById("recordDescription")
+        .value
+        .trim();
 
-  if(type === "Livestock"){
-    farm.livestock += amount;
-    displayAmount = "+" + amount + " birds";
-  } else if(type === "Egg collection"){
-    farm.eggs += amount;
-    displayAmount = "+" + amount + " eggs";
-  } else if(type === "Sale"){
-    farm.sales += amount;
-    displayAmount = "+" + money(amount) + " TZS";
-  } else if(type === "Expense"){
-    farm.expenses += amount;
-    displayAmount = "−" + money(amount) + " TZS";
-  } else {
-    displayAmount = amount + (type === "Task" ? " task" : "");
-  }
 
-  farm.records.unshift({
-    icon: icons[type],
-    title: description,
-    detail: now + " · " + type,
-    amount: displayAmount
-  });
+    const amount =
+        Number(
+            document
+            .getElementById("recordAmount")
+            .value
+        );
 
-  saveData();
-  renderDashboard();
 
-  document.getElementById("description").value = "";
-  document.getElementById("amount").value = "";
-  closeModal();
+    if(
+        !description ||
+        !amount ||
+        amount < 0
+    ){
+
+        alert(
+            "Please enter valid information."
+        );
+
+        return;
+
+    }
+
+
+    if(type === "Egg collection"){
+
+        farm.eggs += amount;
+
+    }
+
+
+    if(type === "Sale"){
+
+        farm.sales += amount;
+
+    }
+
+
+    if(type === "Expense"){
+
+        farm.expenses += amount;
+
+    }
+
+
+    const icons = {
+
+        "Egg collection":"🥚",
+
+        "Sale":"💵",
+
+        "Expense":"🌾",
+
+        "Crop activity":"🌱",
+
+        "Task":"◷"
+
+    };
+
+
+    farm.records.unshift({
+
+        icon:
+            icons[type],
+
+        title:
+            description,
+
+        detail:
+            "Today · " +
+            type,
+
+        amount:
+            type === "Sale"
+            ? "+" + formatMoney(amount) + " TZS"
+
+            :
+
+            type === "Expense"
+            ? "−" + formatMoney(amount) + " TZS"
+
+            :
+
+            "+" + amount
+
+    });
+
+
+    saveFarm();
+
+    renderDashboard();
+
+    closeRecordModal();
+
 }
+
+
+/* =========================================
+   MODALS
+========================================= */
+
+function openRecordModal(){
+
+    document
+        .getElementById("recordModal")
+        .classList.add("open");
+
+}
+
+
+function closeRecordModal(){
+
+    document
+        .getElementById("recordModal")
+        .classList.remove("open");
+
+}
+
+
+function openAnimalModal(){
+
+    document
+        .getElementById("animalModal")
+        .classList.add("open");
+
+}
+
+
+function closeAnimalModal(){
+
+    document
+        .getElementById("animalModal")
+        .classList.remove("open");
+
+}
+
+
+function clearAnimalForm(){
+
+    document
+        .getElementById("animalName")
+        .value = "";
+
+    document
+        .getElementById("animalBreed")
+        .value = "";
+
+    document
+        .getElementById("animalAge")
+        .value = "";
+
+}
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function animalIcon(type){
+
+    if(type === "Chicken")
+        return "🐔";
+
+    if(type === "Goat")
+        return "🐐";
+
+    if(type === "Cow")
+        return "🐄";
+
+    return "🐾";
+
+}
+
+
+function healthClass(status){
+
+    if(status === "Healthy")
+        return "healthy";
+
+    if(status === "Observation")
+        return "observation";
+
+    return "sick";
+
+}
+
+
+function formatMoney(number){
+
+    return Number(number)
+        .toLocaleString("en-TZ");
+
+}
+
+
+function formatMoneyShort(number){
+
+    if(number >= 1000000){
+
+        return (
+            number / 1000000
+        ).toFixed(1) + "M";
+
+    }
+
+
+    return (
+        Math.round(number / 1000)
+    ) + "K";
+
+}
+
+
+function escapeHTML(value){
+
+    return String(value)
+        .replace(
+            /[&<>"']/g,
+            character => ({
+
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                '"':"&quot;",
+                "'":"&#039;"
+
+            }[character])
+        );
+
+}
+
 
 function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("open");
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
 }
 
-function showMessage(){
-  alert(
-    "Today's farm position\\n\\n" +
-    "🐔 Livestock: " + farm.livestock + "\\n" +
-    "🥚 Eggs: " + farm.eggs + "\\n" +
-    "💰 Sales: TZS " + money(farm.sales) + "\\n" +
-    "↘ Expenses: TZS " + money(farm.expenses) + "\\n" +
-    "📈 Profit: TZS " + money(farm.sales - farm.expenses)
-  );
+
+function showToday(){
+
+    alert(
+
+        "TODAY'S FARM POSITION\n\n" +
+
+        "🐔 Animals: " +
+        farm.animals.length +
+
+        "\n🥚 Eggs: " +
+        farm.eggs +
+
+        "\n💰 Sales: TZS " +
+        formatMoney(farm.sales) +
+
+        "\n↘ Expenses: TZS " +
+        formatMoney(farm.expenses) +
+
+        "\n📈 Profit: TZS " +
+        formatMoney(
+            farm.sales -
+            farm.expenses
+        )
+
+    );
+
 }
 
-document.getElementById("modal").addEventListener("click",function(e){
-  if(e.target===this) closeModal();
-});
+
+/* =========================================
+   CLOSE MODALS
+========================================= */
+
+document
+    .getElementById("recordModal")
+    .addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target === this
+            ){
+
+                closeRecordModal();
+
+            }
+
+        }
+    );
+
+
+document
+    .getElementById("animalModal")
+    .addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target === this
+            ){
+
+                closeAnimalModal();
+
+            }
+
+        }
+    );
+
+
+/* =========================================
+   INITIALIZE
+========================================= */
 
 renderDashboard();
+
+renderAnimals();
+
 </script>
+
 </body>
 </html>
